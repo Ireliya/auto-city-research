@@ -1,0 +1,47 @@
+version: "1.0"
+created_at: "2026-07-10 22:56:50 CST"
+source: "read-only inventory of <REMOTE_XBD_ARCHIVE>/train/train/labels"
+
+events:
+  - name: "guatemala-volcano"
+    disaster_type: "volcano"
+    label_files: 36
+    submission_role: "candidate_or_auxiliary"
+  - name: "hurricane-florence"
+    disaster_type: "flooding"
+    label_files: 638
+    submission_role: "fallback_core"
+  - name: "hurricane-harvey"
+    disaster_type: "flooding"
+    label_files: 638
+    submission_role: "locked_core"
+  - name: "hurricane-matthew"
+    disaster_type: "wind"
+    label_files: 476
+    submission_role: "candidate_or_auxiliary"
+  - name: "hurricane-michael"
+    disaster_type: "wind"
+    label_files: 686
+    submission_role: "fallback_core"
+  - name: "mexico-earthquake"
+    disaster_type: "earthquake"
+    label_files: 242
+    submission_role: "locked_core"
+  - name: "midwest-flooding"
+    disaster_type: "flooding"
+    label_files: 558
+    submission_role: "candidate_or_auxiliary"
+  - name: "palu-tsunami"
+    disaster_type: "tsunami"
+    label_files: 226
+    submission_role: "locked_core"
+  - name: "santa-rosa-wildfire"
+    disaster_type: "fire"
+    label_files: 452
+    submission_role: "locked_core"
+  - name: "socal-fire"
+    disaster_type: "fire"
+    label_files: 1646
+    submission_role: "fallback_or_expansion"
+
+selection_note: "Current submission core events are locked in configs/datasets.yaml. Fallback events can replace a core event only if geometry QA or auxiliary data acquisition fails."
