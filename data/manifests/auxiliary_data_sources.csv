@@ -1,0 +1,8 @@
+dataset,role,source_url,status,notes
+xView2/xBD,physical damage,https://www.sei.cmu.edu/projects/xview-2-challenge/,available_on_remote,Remote archive inventoried; derived label and grid tables included; raw imagery not redistributed
+WorldPop,population exposure,https://www.worldpop.org/,joined_complete_1km,Event-year 1km population rasters joined to 500m grid; raw rasters not redistributed
+OpenStreetMap roads,accessibility,https://www.openstreetmap.org/,joined_complete_current_snapshot,Current OSM road metrics joined; historical extracts remain optional future robustness
+OpenStreetMap amenities,critical services,https://www.openstreetmap.org/,joined_complete_current_snapshot,Current OSM facility metrics joined; current-snapshot limitation recorded
+OpenStreetMap buildings,independent urban form,https://www.openstreetmap.org/,joined_complete_current_snapshot,Used as OSM building footprint robustness layer; raw OSM cache not redistributed
+GHSL built-up / settlement,urban form,https://human-settlement.emergency.copernicus.eu/datasets.php,script_ready_source_unavailable,Optional robustness route; no GHSL raster or result claimed in current submission
+VIIRS nighttime lights,economic activity proxy,https://eogdata.mines.edu/products/vnl/,optional_after_current_submission,Not used in current results
