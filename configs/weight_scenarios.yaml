@@ -1,0 +1,54 @@
+version: "0.2"
+created_at: "2026-07-10 22:56:50 CST"
+updated_at: "2026-07-11 00:55:00 CST"
+status: "active_submission_scenarios"
+
+principle:
+  - "Do not submit a single arbitrary need-weight vector as the only result."
+  - "Use pre-registered weight scenarios and sensitivity analysis."
+  - "Report where priority conflicts are stable across plausible weights."
+
+planned_components:
+  damage: "building-level physical damage from xBD labels"
+  population: "WorldPop 1km event-year population exposure proxy"
+  accessibility: "inverse OSM drive-road density as access-need proxy"
+  critical_services: "nearest OSM critical facility and inverse facility count"
+  urban_capacity: "urban form or nighttime light proxy if available"
+
+indicator_definitions:
+  damage_norm: "event-wise min-max normalization of damage_index_D"
+  population_norm: "event-wise min-max normalization of log1p(worldpop_population)"
+  accessibility_need_norm: "event-wise min-max normalization of inverse log1p(road_density_m_per_km2)"
+  service_need_norm: "0.5 * nearest_facility_norm + 0.5 * inverse log1p(facility_count)_norm"
+
+active_scenarios:
+  - name: "damage_only_baseline"
+    role: "baseline"
+    weights:
+      damage: 1.0
+  - name: "balanced_need"
+    role: "main"
+    weights:
+      damage_norm: 0.40
+      population_norm: 0.35
+      accessibility_need_norm: 0.15
+      service_need_norm: 0.10
+  - name: "population_sensitive"
+    role: "sensitivity"
+    weights:
+      damage_norm: 0.25
+      population_norm: 0.55
+      accessibility_need_norm: 0.10
+      service_need_norm: 0.10
+  - name: "accessibility_sensitive"
+    role: "sensitivity"
+    weights:
+      damage_norm: 0.25
+      population_norm: 0.30
+      accessibility_need_norm: 0.30
+      service_need_norm: 0.15
+
+mismatch_definitions:
+  top_share: 0.20
+  stable_mismatch: "cell is in the top 20% of need-aware priority but outside the top 20% of damage-only priority in at least two active need scenarios"
+  underestimation_gap: "need_priority_percentile - damage_priority_percentile"
