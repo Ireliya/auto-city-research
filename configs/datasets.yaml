@@ -1,0 +1,141 @@
+version: "1.1"
+created_at: "2026-07-10 23:04:20 CST"
+updated_at: "2026-07-11 01:55:00 CST"
+status: "dataset_plan_locked_v1_submission_implemented"
+
+research_problem:
+  short_name: "damage_need_mismatch"
+  question: "Does a damage-only urban AI disaster-response ranking diverge from a need-aware ranking once population, accessibility, critical services, and urban form are considered?"
+
+core_datasets:
+  xbd:
+    names:
+      - "xView2"
+      - "xBD"
+    role: "physical_damage_evidence"
+    local_status: "available_on_remote"
+    remote_root: "<REMOTE_XBD_ARCHIVE>"
+    train_images: "<REMOTE_XBD_ARCHIVE>/train/train/images"
+    train_labels: "<REMOTE_XBD_ARCHIVE>/train/train/labels"
+    test_images: "<REMOTE_XBD_ARCHIVE>/test/test/images"
+    required_fields:
+      - "features.lng_lat"
+      - "features.xy"
+      - "features.lng_lat[].properties.subtype"
+      - "metadata.disaster"
+      - "metadata.disaster_type"
+      - "metadata.capture_date"
+    derived_outputs:
+      - "building-level damage table"
+      - "event footprint polygons"
+      - "grid-level damage index D"
+
+  worldpop:
+    role: "population_exposure"
+    status: "joined_complete"
+    implemented_product: "WorldPop Global1 1km event-year population count rasters"
+    derived_outputs:
+      - "grid-level population P"
+      - "affected population proxy D * P"
+    fallback:
+      - "GHSL GHS-POP"
+
+  osm_roads:
+    role: "accessibility_and_network_support"
+    status: "joined_complete_current_snapshot"
+    implemented_source: "current OpenStreetMap snapshot via OSMnx/Overpass-compatible retrieval"
+    historical_target: "30 days before each disaster event when feasible; retained as optional robustness"
+    derived_outputs:
+      - "road length density"
+      - "intersection density"
+      - "network redundancy proxy"
+      - "distance/access proxy"
+    fallback:
+      - "current OSM snapshot with explicit bias note"
+
+  osm_amenities:
+    role: "critical_services"
+    status: "joined_complete_current_snapshot"
+    implemented_source: "current OpenStreetMap snapshot via OSMnx/Overpass-compatible retrieval"
+    target_features:
+      - "hospital"
+      - "clinic"
+      - "school"
+      - "shelter"
+      - "fire_station"
+      - "police"
+      - "public_service"
+    derived_outputs:
+      - "critical-service count C"
+      - "service exposure around damaged/high-population cells"
+
+  ghsl:
+    role: "urban_form_and_settlement_context"
+    status: "script_ready_source_download_unavailable_on_2026-07-11"
+    current_submission_proxy: "xBD-derived building count and total mapped building area per 500m cell"
+    preferred_products:
+      - "GHS-BUILT-C R2023A 2018 settlement characteristics"
+      - "GHS-SMOD settlement classification if needed"
+    derived_outputs:
+      - "built-up / residential form proxy U"
+      - "settlement intensity or morphology class"
+
+  osm_buildings:
+    role: "independent_urban_form_robustness"
+    status: "joined_complete_current_snapshot"
+    implemented_source: "current OpenStreetMap building footprints via OSMnx/Overpass"
+    derived_outputs:
+      - "OSM building count per 500m cell"
+      - "OSM building footprint area per 500m cell"
+      - "OSM building density and area fraction"
+
+  xbd_urban_form_proxy:
+    role: "urban_form_submission_proxy"
+    status: "derived_complete"
+    source: "xBD building polygons"
+    derived_outputs:
+      - "building count per 500m cell"
+      - "total mapped building area per 500m cell"
+
+enhancement_datasets:
+  viirs_nighttime_lights:
+    role: "economic_activity_or_recovery_capacity_proxy"
+    status: "optional_after_current_submission"
+  ghsl_population:
+    role: "population fallback or robustness check"
+    status: "optional_or_fallback"
+  vlm_xbd_chips:
+    role: "qualitative visual explanation and AI audit"
+    status: "optional_after_core_results"
+    gpu_policy: "must use CUDA_VISIBLE_DEVICES=0"
+
+core_events:
+  - name: "mexico-earthquake"
+    disaster_type: "earthquake"
+    rationale: "dense urban earthquake case"
+  - name: "palu-tsunami"
+    disaster_type: "tsunami"
+    rationale: "coastal tsunami case"
+  - name: "santa-rosa-wildfire"
+    disaster_type: "fire"
+    rationale: "suburban wildfire case"
+  - name: "hurricane-harvey"
+    disaster_type: "flooding"
+    rationale: "flooding and road-accessibility case"
+
+fallback_events:
+  - "hurricane-florence"
+  - "hurricane-michael"
+  - "socal-fire"
+
+analysis_unit:
+  default: "500m equal-area grid or compact hexagonal grid"
+  alternatives_for_robustness:
+    - "250m grid"
+    - "1km grid"
+
+non_goals:
+  - "No causal claim about urban form causing damage."
+  - "No single morally correct priority formula."
+  - "No VLM-first project framing."
+  - "No raw satellite image redistribution before license confirmation."
