@@ -1,0 +1,30 @@
+name: city
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pandas
+  - geopandas
+  - shapely
+  - pyproj
+  - rasterio
+  - fiona
+  - pyogrio
+  - rtree
+  - rasterstats
+  - numpy
+  - scipy
+  - scikit-learn
+  - statsmodels
+  - matplotlib
+  - seaborn
+  - osmnx
+  - networkx
+  - requests
+  - tqdm
+  - pyyaml
+  - pyarrow
+  - fastparquet
+  - jupyterlab
+  - ipykernel
