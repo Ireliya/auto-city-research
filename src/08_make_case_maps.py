@@ -1,0 +1,305 @@
+#!/usr/bin/env python3
+"""Create map-based case figures for damage-vs-need priority mismatch.
+
+This script intentionally uses only pandas and matplotlib. The priority
+mismatch table already stores each 500 m grid cell in event-local UTM
+coordinates, so rectangular grid maps can be reproduced without a GIS stack.
+"""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib.collections import PatchCollection
+from matplotlib.patches import Patch, Rectangle
+import pandas as pd
+
+
+CASE_EVENTS = ["hurricane-harvey", "santa-rosa-wildfire"]
+EVENT_LABELS = {
+    "hurricane-harvey": "Harvey",
+    "santa-rosa-wildfire": "Santa Rosa",
+}
+NEED_SCORE_COLS = [
+    "score_balanced_need",
+    "score_population_sensitive",
+    "score_accessibility_sensitive",
+]
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--input-grid",
+        default="data/derived/priority_mismatch_v1/priority_mismatch_grid_500m.csv",
+        help="Priority mismatch grid CSV.",
+    )
+    parser.add_argument(
+        "--out-dir",
+        default="reports/figures",
+        help="Directory for exported figures.",
+    )
+    parser.add_argument(
+        "--basename",
+        default="fig4_case_map_mismatch",
+        help="Output basename without extension.",
+    )
+    return parser.parse_args()
+
+
+def set_style() -> None:
+    mpl.rcParams.update(
+        {
+            "figure.dpi": 150,
+            "savefig.dpi": 300,
+            "pdf.fonttype": 42,
+            "ps.fonttype": 42,
+            "font.family": "DejaVu Sans",
+            "axes.titlesize": 10,
+            "axes.labelsize": 8,
+            "xtick.labelsize": 7,
+            "ytick.labelsize": 7,
+            "legend.fontsize": 8,
+            "axes.spines.top": False,
+            "axes.spines.right": False,
+        }
+    )
+
+
+def add_grid_layer(
+    ax: plt.Axes,
+    df: pd.DataFrame,
+    value_col: str,
+    cmap: mpl.colors.Colormap,
+    norm: mpl.colors.Normalize,
+) -> PatchCollection:
+    patches = [
+        Rectangle(
+            (row.x_min / 1000.0, row.y_min / 1000.0),
+            (row.x_max - row.x_min) / 1000.0,
+            (row.y_max - row.y_min) / 1000.0,
+        )
+        for row in df.itertuples(index=False)
+    ]
+    collection = PatchCollection(
+        patches,
+        cmap=cmap,
+        norm=norm,
+        linewidths=0.08,
+        edgecolors="#eaeaea",
+    )
+    collection.set_array(df[value_col].to_numpy())
+    ax.add_collection(collection)
+    return collection
+
+
+def add_mismatch_outlines(ax: plt.Axes, df: pd.DataFrame) -> None:
+    mismatch = df[df["stable_mismatch"].astype(bool)]
+    for row in mismatch.itertuples(index=False):
+        x = row.x_min / 1000.0
+        y = row.y_min / 1000.0
+        w = (row.x_max - row.x_min) / 1000.0
+        h = (row.y_max - row.y_min) / 1000.0
+        ax.add_patch(
+            Rectangle(
+                (x, y),
+                w,
+                h,
+                fill=False,
+                edgecolor="black",
+                linewidth=1.05,
+                zorder=5,
+            )
+        )
+        ax.add_patch(
+            Rectangle(
+                (x + 0.03 * w, y + 0.03 * h),
+                0.94 * w,
+                0.94 * h,
+                fill=False,
+                edgecolor="white",
+                linewidth=0.55,
+                hatch="///",
+                zorder=6,
+            )
+        )
+
+
+def add_scale_bar(ax: plt.Axes, length_km: float = 5.0) -> None:
+    x0, x1 = ax.get_xlim()
+    y0, y1 = ax.get_ylim()
+    x = x0 + 0.06 * (x1 - x0)
+    y = y0 + 0.06 * (y1 - y0)
+    ax.plot([x, x + length_km], [y, y], color="black", lw=1.5, solid_capstyle="butt")
+    ax.text(
+        x + length_km / 2,
+        y + 0.015 * (y1 - y0),
+        f"{length_km:g} km",
+        ha="center",
+        va="bottom",
+        fontsize=7,
+        color="black",
+    )
+
+
+def format_map_axis(ax: plt.Axes, df: pd.DataFrame) -> None:
+    pad_x = max(0.5, (df.x_max.max() - df.x_min.min()) / 1000.0 * 0.03)
+    pad_y = max(0.5, (df.y_max.max() - df.y_min.min()) / 1000.0 * 0.03)
+    ax.set_xlim(df.x_min.min() / 1000.0 - pad_x, df.x_max.max() / 1000.0 + pad_x)
+    ax.set_ylim(df.y_min.min() / 1000.0 - pad_y, df.y_max.max() / 1000.0 + pad_y)
+    ax.set_aspect("equal")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    add_scale_bar(ax)
+
+
+def crop_to_mismatch_window(df: pd.DataFrame, buffer_m: float = 3000.0) -> pd.DataFrame:
+    """Return cells inside a mismatch-centered case window.
+
+    The full Harvey footprint is vertically long and makes the grid visually tiny.
+    A stable-mismatch window preserves the case-study argument while allowing
+    readers to inspect the local spatial pattern.
+    """
+    mismatch = df[df["stable_mismatch"].astype(bool)]
+    if mismatch.empty:
+        return df.copy()
+    x_min = mismatch.x_min.min() - buffer_m
+    x_max = mismatch.x_max.max() + buffer_m
+    y_min = mismatch.y_min.min() - buffer_m
+    y_max = mismatch.y_max.max() + buffer_m
+    window = df[
+        (df.x_max >= x_min)
+        & (df.x_min <= x_max)
+        & (df.y_max >= y_min)
+        & (df.y_min <= y_max)
+    ].copy()
+    return window if not window.empty else df.copy()
+
+
+def make_figure(df: pd.DataFrame, out_dir: Path, basename: str) -> dict[str, Path]:
+    set_style()
+    df = df.copy()
+    df["mean_need_score"] = df[NEED_SCORE_COLS].mean(axis=1)
+
+    cmap = mpl.colormaps["viridis"]
+    norm = mpl.colors.Normalize(vmin=0, vmax=1)
+    fig, axes = plt.subplots(
+        nrows=len(CASE_EVENTS),
+        ncols=2,
+        figsize=(7.2, 6.0),
+        constrained_layout=True,
+    )
+    fig.set_constrained_layout_pads(w_pad=0.03, h_pad=0.04, hspace=0.07, wspace=0.03)
+
+    panel_letters = ["a", "b", "c", "d"]
+    panel_idx = 0
+    first_collection = None
+    for row_idx, event in enumerate(CASE_EVENTS):
+        event_df = df[df["event"] == event].sort_values(["iy", "ix"]).copy()
+        if event_df.empty:
+            raise ValueError(f"No rows found for event: {event}")
+        plot_df = crop_to_mismatch_window(event_df).sort_values(["iy", "ix"])
+        for col_idx, (value_col, col_title) in enumerate(
+            [
+                ("damage_norm", "damage-only"),
+                ("mean_need_score", "need-aware"),
+            ]
+        ):
+            ax = axes[row_idx, col_idx]
+            collection = add_grid_layer(ax, plot_df, value_col, cmap, norm)
+            if first_collection is None:
+                first_collection = collection
+            add_mismatch_outlines(ax, plot_df)
+            format_map_axis(ax, plot_df)
+            mismatch_n = int(plot_df["stable_mismatch"].astype(bool).sum())
+            ax.set_title(
+                f"{panel_letters[panel_idx]}. {EVENT_LABELS[event]} | {col_title}",
+                loc="left",
+                fontweight="bold",
+                fontsize=9,
+                pad=2,
+            )
+            ax.text(
+                0.99,
+                0.98,
+                f"n={mismatch_n}",
+                transform=ax.transAxes,
+                ha="right",
+                va="top",
+                fontsize=7,
+                bbox={
+                    "boxstyle": "round,pad=0.18",
+                    "facecolor": "white",
+                    "edgecolor": "#777777",
+                    "linewidth": 0.4,
+                    "alpha": 0.88,
+                },
+                zorder=10,
+            )
+            panel_idx += 1
+
+    cbar = fig.colorbar(
+        first_collection,
+        ax=axes.ravel().tolist(),
+        orientation="horizontal",
+        fraction=0.035,
+        pad=0.018,
+        aspect=45,
+    )
+    cbar.set_label("Event-normalized score (0-1)")
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    outputs = {
+        "png": out_dir / f"{basename}.png",
+        "pdf": out_dir / f"{basename}.pdf",
+    }
+    fig.savefig(outputs["png"], bbox_inches="tight")
+    fig.savefig(outputs["pdf"], bbox_inches="tight")
+    plt.close(fig)
+
+    try:
+        from PIL import Image
+
+        gray_out = out_dir / f"{basename}_grayscale.png"
+        Image.open(outputs["png"]).convert("L").convert("RGB").save(gray_out)
+        outputs["grayscale_png"] = gray_out
+    except Exception:
+        pass
+
+    return outputs
+
+
+def main() -> None:
+    args = parse_args()
+    input_grid = Path(args.input_grid)
+    out_dir = Path(args.out_dir)
+    df = pd.read_csv(input_grid)
+    missing_cols = [
+        col
+        for col in [
+            "event",
+            "x_min",
+            "x_max",
+            "y_min",
+            "y_max",
+            "damage_norm",
+            "stable_mismatch",
+            *NEED_SCORE_COLS,
+        ]
+        if col not in df.columns
+    ]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+    outputs = make_figure(df, out_dir, args.basename)
+    print("Created case map figure:")
+    for label, path in outputs.items():
+        print(f"- {label}: {path}")
+
+
+if __name__ == "__main__":
+    main()
