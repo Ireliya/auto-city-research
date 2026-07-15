@@ -104,10 +104,6 @@ enhancement_datasets:
   ghsl_population:
     role: "population fallback or robustness check"
     status: "optional_or_fallback"
-  vlm_xbd_chips:
-    role: "qualitative visual explanation and AI audit"
-    status: "optional_after_core_results"
-    gpu_policy: "must use CUDA_VISIBLE_DEVICES=0"
 
 core_events:
   - name: "mexico-earthquake"
@@ -137,5 +133,4 @@ analysis_unit:
 non_goals:
   - "No causal claim about urban form causing damage."
   - "No single morally correct priority formula."
-  - "No VLM-first project framing."
   - "No raw satellite image redistribution before license confirmation."

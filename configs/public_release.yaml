@@ -1,6 +1,6 @@
 version: "1.1"
 github_repository: "Ireliya/auto-city-research"
 huggingface_dataset: "Ireliya/auto-city-research"
-huggingface_revision: "4bbf5d6fad493833f7ad350e31e3c909096836fd"
+huggingface_revision: "e0623a93142465ad21b57d27810ad39f2ef90f5c"
 release_tag: "v1.0.0"
 note: "Pinned Urban Cup 2026 evidence, publication figures, branded reports, and reproducibility release."
