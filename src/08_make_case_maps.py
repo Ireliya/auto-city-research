@@ -13,6 +13,21 @@ from matplotlib.collections import PatchCollection
 from matplotlib.patches import Patch, Rectangle
 import pandas as pd
 
+from figure_style import (
+    CMAP_BLUE,
+    INK,
+    ROSE,
+    add_panel_label,
+    apply_publication_style,
+    mm_to_inches,
+    save_publication_figure,
+)
+
+
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = ["Arial", "DejaVu Sans", "Liberation Sans"]
+plt.rcParams["svg.fonttype"] = "none"
+
 
 CASE_EVENTS = ["hurricane-harvey", "santa-rosa-wildfire"]
 EVENT_LABELS = {
@@ -57,22 +72,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def set_style() -> None:
-    mpl.rcParams.update(
-        {
-            "figure.dpi": 150,
-            "savefig.dpi": 300,
-            "pdf.fonttype": 42,
-            "ps.fonttype": 42,
-            "font.family": "DejaVu Sans",
-            "axes.titlesize": 10,
-            "axes.labelsize": 8,
-            "xtick.labelsize": 7,
-            "ytick.labelsize": 7,
-            "legend.fontsize": 8,
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-        }
-    )
+    apply_publication_style(font_size=7.0)
 
 
 def add_grid_layer(
@@ -116,8 +116,8 @@ def add_mismatch_outlines(ax: plt.Axes, df: pd.DataFrame) -> None:
                 w,
                 h,
                 fill=False,
-                edgecolor="black",
-                linewidth=1.05,
+                edgecolor=ROSE,
+                linewidth=1.25,
                 zorder=5,
             )
         )
@@ -211,12 +211,12 @@ def make_figure(
     df = df.copy()
     df["mean_need_score"] = df[NEED_SCORE_COLS].mean(axis=1)
 
-    cmap = mpl.colormaps["viridis"]
+    cmap = CMAP_BLUE
     norm = mpl.colors.Normalize(vmin=0, vmax=1)
     fig, axes = plt.subplots(
         nrows=len(CASE_EVENTS),
         ncols=2,
-        figsize=(7.2, 6.0),
+        figsize=(mm_to_inches(183), mm_to_inches(150)),
         constrained_layout=True,
     )
     fig.set_constrained_layout_pads(w_pad=0.03, h_pad=0.04, hspace=0.07, wspace=0.03)
@@ -245,26 +245,27 @@ def make_figure(
             add_mismatch_outlines(ax, plot_df)
             mismatch_n = int(plot_df["stable_mismatch"].astype(bool).sum())
             ax.set_title(
-                f"{panel_letters[panel_idx]}. {EVENT_LABELS[event]} | {col_title}",
+                f"{EVENT_LABELS[event]} | {col_title}",
                 loc="left",
-                fontweight="bold",
-                fontsize=9,
-                pad=2,
+                x=0.06,
+                fontsize=7.7,
+                pad=4,
             )
+            add_panel_label(ax, panel_letters[panel_idx], x=-0.03, y=1.025)
             ax.text(
                 0.99,
-                0.98,
-                f"n={mismatch_n}",
+                0.965,
+                f"n = {mismatch_n}",
                 transform=ax.transAxes,
                 ha="right",
                 va="top",
-                fontsize=7,
+                fontsize=6.3,
+                color=INK,
                 bbox={
-                    "boxstyle": "round,pad=0.18",
                     "facecolor": "white",
-                    "edgecolor": "#777777",
-                    "linewidth": 0.4,
-                    "alpha": 0.88,
+                    "edgecolor": "none",
+                    "alpha": 0.78,
+                    "pad": 1.2,
                 },
                 zorder=10,
             )
@@ -279,6 +280,13 @@ def make_figure(
         aspect=45,
     )
     cbar.set_label("Event-normalized score (0-1)")
+    axes[0, 0].legend(
+        handles=[Patch(facecolor="white", edgecolor=ROSE, linewidth=1.2, hatch="///", label="Stable mismatch")],
+        loc="lower right",
+        fontsize=6.3,
+        handlelength=1.7,
+        borderaxespad=0.25,
+    )
     if use_basemap:
         axes[0, 1].text(
             0.99,
@@ -299,24 +307,7 @@ def make_figure(
         )
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    outputs = {
-        "png": out_dir / f"{basename}.png",
-        "pdf": out_dir / f"{basename}.pdf",
-    }
-    fig.savefig(outputs["png"], bbox_inches="tight")
-    fig.savefig(outputs["pdf"], bbox_inches="tight")
-    plt.close(fig)
-
-    try:
-        from PIL import Image
-
-        gray_out = out_dir / f"{basename}_grayscale.png"
-        Image.open(outputs["png"]).convert("L").convert("RGB").save(gray_out)
-        outputs["grayscale_png"] = gray_out
-    except Exception:
-        pass
-
-    return outputs
+    return save_publication_figure(fig, out_dir, basename)
 
 
 def main() -> None:

@@ -1,11 +1,23 @@
 # Damage Is Not Need
 
+<p>
+  <img src="logo.png" alt="auto city research logo" width="42" align="absmiddle">
+  <strong>auto city research</strong>
+</p>
+
+<p>
+  <img src="github.svg" alt="GitHub" width="18" align="absmiddle">
+  <strong>Code:</strong>
+  <strong><a href="https://github.com/Ireliya/auto-city-research">github.com/Ireliya/auto-city-research</a></strong>
+  <br>
+  <img src="huggingface.svg" alt="Hugging Face" width="18" align="absmiddle">
+  <strong>Data:</strong>
+  <strong><a href="https://huggingface.co/datasets/Ireliya/auto-city-research">huggingface.co/datasets/Ireliya/auto-city-research</a></strong>
+</p>
+
 Auditing damage-only disaster recovery priority with multi-source urban evidence.
 
-Team: `auto city research`  
 Competition: Urban Cup 2026 Competition 2, Urban Science Vibe Research Challenge  
-Code repository: https://github.com/Ireliya/auto-city-research  
-Dataset repository: https://huggingface.co/datasets/Ireliya/auto-city-research
 
 ## What This Repository Does
 
@@ -72,6 +84,14 @@ python scripts/smoke_reproduce.py
 ```
 
 `scripts/reproduce_core.py` runs scripts `05`, `06`, `07`, `11`, `15`, `18`, and `19` with every required argument supplied. Script `19` uses the released prepared 250/500/1000 m grids so the scale analysis itself is offline and deterministic. Scripts `03`, `04`, `16`, `17`, and `20` depend on public web services or omitted source data and are excluded from per-commit CI; their released aggregate outputs remain downloadable.
+
+To regenerate the ten publication figures from the fixed derived tables:
+
+```bash
+python src/21_regenerate_publication_figures.py
+```
+
+Each figure is exported as editable SVG, vector PDF, 600 dpi PNG, and a grayscale-check PNG.
 
 ## Repository Structure
 

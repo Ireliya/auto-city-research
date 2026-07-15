@@ -14,6 +14,25 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+from figure_style import (
+    CMAP_BLUE,
+    CMAP_DIVERGING,
+    CMAP_ROSE,
+    INK,
+    add_panel_label,
+    apply_publication_style,
+    color_for_event,
+    mm_to_inches,
+    save_publication_figure,
+    set_heatmap_annotation_contrast,
+    style_numeric_axis,
+)
+
+
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = ["Arial", "DejaVu Sans", "Liberation Sans"]
+plt.rcParams["svg.fonttype"] = "none"
+
 
 EVENT_LABELS = {
     "hurricane-harvey": "Harvey",
@@ -41,52 +60,63 @@ DRIVER_LABELS = {
 
 
 def setup_style() -> None:
-    sns.set_theme(style="whitegrid", context="paper", font_scale=0.95)
-    plt.rcParams.update(
-        {
-            "font.family": "DejaVu Sans",
-            "pdf.fonttype": 42,
-            "ps.fonttype": 42,
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-            "axes.titleweight": "bold",
-            "figure.dpi": 150,
-            "savefig.dpi": 300,
-            "savefig.bbox": "tight",
-        }
-    )
+    sns.set_theme(style="white", context="paper")
+    apply_publication_style()
 
 
 def save_figure(fig: plt.Figure, out_dir: Path, basename: str) -> None:
-    out_dir.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_dir / f"{basename}.png")
-    fig.savefig(out_dir / f"{basename}.pdf")
-    plt.close(fig)
+    save_publication_figure(fig, out_dir, basename)
 
 
 def figure_event_summary(summary: pd.DataFrame, out_dir: Path) -> None:
     data = summary.copy()
     data["event_label"] = data["event"].map(EVENT_LABELS)
     data = data.sort_values("stable_mismatch_share", ascending=True)
-    palette = sns.color_palette("colorblind", n_colors=len(data))
+    colors = [color_for_event(label) for label in data["event_label"]]
 
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.0), constrained_layout=True)
+    fig, axes = plt.subplots(
+        1,
+        2,
+        figsize=(mm_to_inches(183), mm_to_inches(74)),
+        constrained_layout=True,
+    )
 
-    axes[0].barh(data["event_label"], data["stable_mismatch_share"] * 100, color=palette)
+    axes[0].barh(data["event_label"], data["stable_mismatch_share"] * 100, color=colors, height=0.62)
     axes[0].set_xlabel("Stable mismatch cells (%)")
     axes[0].set_ylabel("")
-    axes[0].set_title("a  Mismatch prevalence")
+    axes[0].set_title("Mismatch prevalence", loc="left", pad=7)
+    add_panel_label(axes[0], "a", x=-0.17, y=1.04)
     for y, (_, row) in enumerate(data.iterrows()):
-        axes[0].text(row["stable_mismatch_share"] * 100 + 0.2, y, f"n={int(row['stable_mismatch_count'])}", va="center", fontsize=7)
+        axes[0].text(
+            row["stable_mismatch_share"] * 100 + 0.16,
+            y,
+            f"n = {int(row['stable_mismatch_count'])}",
+            va="center",
+            fontsize=6.5,
+            color=INK,
+        )
+    axes[0].margins(x=0.16)
 
-    axes[1].barh(data["event_label"], data["stable_mismatch_population_sum"] / 1000, color=palette)
-    axes[1].set_xlabel("Population in mismatch cells (thousand)")
+    exposed = data["stable_mismatch_population_sum"] / 1000
+    axes[1].barh(data["event_label"], exposed, color=colors, height=0.62)
+    axes[1].set_xlabel("Population in mismatch cells (thousands)")
     axes[1].set_ylabel("")
-    axes[1].set_title("b  Exposed population")
+    axes[1].set_title("Exposed population", loc="left", pad=7)
+    add_panel_label(axes[1], "b", x=-0.17, y=1.04)
+    for y, value in enumerate(exposed):
+        if value > 0:
+            axes[1].text(
+                value + max(exposed.max() * 0.018, 0.05),
+                y,
+                f"{value:.1f}",
+                va="center",
+                fontsize=6.5,
+                color=INK,
+            )
+    axes[1].margins(x=0.17)
 
     for ax in axes:
-        ax.grid(axis="x", color="0.88", linewidth=0.6)
-        ax.grid(axis="y", visible=False)
+        style_numeric_axis(ax, axis="x")
 
     save_figure(fig, out_dir, "fig1_event_mismatch_summary")
 
@@ -101,32 +131,48 @@ def figure_scenario_heatmaps(metrics: pd.DataFrame, out_dir: Path) -> None:
     jaccard = data.pivot(index="event_label", columns="scenario_label", values="top_jaccard").reindex(event_order)[scenario_order]
     count = data.pivot(index="event_label", columns="scenario_label", values="high_need_low_damage_count").reindex(event_order)[scenario_order]
 
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.0), constrained_layout=True)
+    fig, axes = plt.subplots(
+        1,
+        2,
+        figsize=(mm_to_inches(183), mm_to_inches(75)),
+        constrained_layout=True,
+    )
     sns.heatmap(
         jaccard,
         ax=axes[0],
-        cmap="viridis",
+        cmap=CMAP_BLUE,
         annot=True,
         fmt=".2f",
         vmin=0,
         vmax=1,
-        cbar_kws={"label": "Top-20 Jaccard"},
+        linewidths=0.6,
+        linecolor="white",
+        cbar_kws={"label": "Top-20 Jaccard", "shrink": 0.78, "pad": 0.025},
     )
-    axes[0].set_title("a  Damage-need top overlap")
+    axes[0].set_title("Damage-need top overlap", loc="left", pad=7)
+    add_panel_label(axes[0], "a", x=-0.18, y=1.04)
     axes[0].set_xlabel("")
     axes[0].set_ylabel("")
+    axes[0].tick_params(axis="x", rotation=0)
+    set_heatmap_annotation_contrast(axes[0], jaccard.to_numpy())
 
     sns.heatmap(
         count,
         ax=axes[1],
-        cmap="magma",
+        cmap=CMAP_ROSE,
         annot=True,
         fmt=".0f",
-        cbar_kws={"label": "Cells"},
+        vmin=0,
+        linewidths=0.6,
+        linecolor="white",
+        cbar_kws={"label": "Mismatch cells", "shrink": 0.78, "pad": 0.025},
     )
-    axes[1].set_title("b  High-need / low-damage cells")
+    axes[1].set_title("High-need / low-damage cells", loc="left", pad=7)
+    add_panel_label(axes[1], "b", x=-0.18, y=1.04)
     axes[1].set_xlabel("")
     axes[1].set_ylabel("")
+    axes[1].tick_params(axis="x", rotation=0)
+    set_heatmap_annotation_contrast(axes[1], count.to_numpy())
 
     save_figure(fig, out_dir, "fig2_scenario_sensitivity")
 
@@ -158,19 +204,31 @@ def figure_driver_profile(profile: pd.DataFrame, out_dir: Path) -> None:
     group_order = ["All", "Harvey", "Santa Rosa"]
     matrix = data.pivot(index="driver_label", columns="group_label", values="standardized_mean_difference").reindex(driver_order)[group_order]
 
-    fig, ax = plt.subplots(figsize=(4.8, 4.2), constrained_layout=True)
+    max_abs = max(2.0, float(matrix.abs().max().max()))
+    fig, ax = plt.subplots(
+        figsize=(mm_to_inches(112), mm_to_inches(102)),
+        constrained_layout=True,
+    )
     sns.heatmap(
         matrix,
         ax=ax,
-        cmap="RdBu_r",
+        cmap=CMAP_DIVERGING,
         center=0,
+        vmin=-max_abs,
+        vmax=max_abs,
         annot=True,
         fmt=".2f",
-        cbar_kws={"label": "Std. mean difference\n(mismatch - other)"},
+        linewidths=0.55,
+        linecolor="white",
+        cbar_kws={"label": "Standardized mean difference\n(mismatch - other)", "shrink": 0.82},
     )
-    ax.set_title("Driver profile of stable mismatch cells")
+    ax.set_title("Mismatch cells have distinct urban profiles", loc="left", pad=8)
     ax.set_xlabel("")
     ax.set_ylabel("")
+    ax.tick_params(axis="x", rotation=0)
+    for text, value in zip(ax.texts, matrix.to_numpy().ravel()):
+        text.set_color("white" if abs(float(value)) >= 1.0 else INK)
+        text.set_fontsize(6.8)
     save_figure(fig, out_dir, "fig3_driver_profile")
 
 

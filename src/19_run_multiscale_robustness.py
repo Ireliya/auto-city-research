@@ -21,11 +21,11 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import PercentFormatter
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import yaml
-from PIL import Image
 
 from evidence_utils import (
     INDICATOR_COLUMNS,
@@ -35,6 +35,22 @@ from evidence_utils import (
     load_need_scenarios,
     require_finite,
 )
+from figure_style import (
+    GRID,
+    add_direct_line_labels,
+    add_panel_label,
+    apply_publication_style,
+    color_for_event,
+    marker_for_event,
+    mm_to_inches,
+    save_publication_figure,
+    style_numeric_axis,
+)
+
+
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = ["Arial", "DejaVu Sans", "Liberation Sans"]
+plt.rcParams["svg.fonttype"] = "none"
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -243,54 +259,65 @@ def analyze_scales(
 
 
 def make_figure(summary: pd.DataFrame, figure_dir: Path) -> None:
-    sns.set_theme(style="whitegrid", context="paper", font_scale=0.9)
-    plt.rcParams.update({"font.family": "DejaVu Sans", "pdf.fonttype": 42, "ps.fonttype": 42})
+    sns.set_theme(style="white", context="paper")
+    apply_publication_style()
     figure_dir.mkdir(parents=True, exist_ok=True)
     top20 = summary[summary["top_share"].round(2) == 0.20].copy()
     top20["event_label"] = top20["event"].map(EVENT_LABELS).fillna(top20["event"])
 
-    fig, axes = plt.subplots(1, 2, figsize=(8.0, 3.3), constrained_layout=True)
-    sns.lineplot(
-        data=top20,
-        x="cell_m",
-        y="stable_mismatch_area_km2",
-        hue="event_label",
-        marker="o",
-        palette="colorblind",
-        ax=axes[0],
+    fig, axes = plt.subplots(
+        1,
+        2,
+        figsize=(mm_to_inches(183), mm_to_inches(80)),
+        constrained_layout=True,
     )
-    axes[0].set_title("a  Mismatch area across grid scales")
+    area_frames = []
+    share_frames = []
+    for event in EVENT_LABELS:
+        event_df = top20[top20["event"] == event].sort_values("cell_m")
+        label = EVENT_LABELS[event]
+        axes[0].plot(
+            event_df["cell_m"],
+            event_df["stable_mismatch_area_km2"],
+            color=color_for_event(label),
+            marker=marker_for_event(label),
+        )
+        axes[1].plot(
+            event_df["cell_m"],
+            event_df["stable_mismatch_area_share"],
+            color=color_for_event(label),
+            marker=marker_for_event(label),
+        )
+        area_frames.append((label, event_df))
+        share_frames.append((label, event_df))
+    axes[0].set_title("Mismatch area across grid scales", loc="left", pad=7)
+    add_panel_label(axes[0], "a", x=-0.15, y=1.04)
     axes[0].set_xlabel("Grid size (m)")
     axes[0].set_ylabel("Mismatch grid area (km2)")
     axes[0].set_xticks(sorted(top20["cell_m"].unique()))
-    axes[0].legend(title="", fontsize=7)
-
-    sns.lineplot(
-        data=top20,
-        x="cell_m",
-        y="stable_mismatch_area_share",
-        hue="event_label",
-        marker="o",
-        palette="colorblind",
-        legend=False,
-        ax=axes[1],
+    add_direct_line_labels(
+        axes[0],
+        area_frames,
+        x_col="cell_m",
+        y_col="stable_mismatch_area_km2",
     )
-    axes[1].set_title("b  Mismatch share across grid scales")
+    axes[1].set_title("Mismatch area share across grid scales", loc="left", pad=7)
+    add_panel_label(axes[1], "b", x=-0.15, y=1.04)
     axes[1].set_xlabel("Grid size (m)")
-    axes[1].set_ylabel("Share of analyzed cells")
+    axes[1].set_ylabel("Mismatch area share")
     axes[1].set_xticks(sorted(top20["cell_m"].unique()))
-    for ax in axes:
-        ax.grid(axis="y", color="0.88", linewidth=0.6)
-        ax.grid(axis="x", visible=False)
-
-    png = figure_dir / "fig9_multiscale_robustness.png"
-    pdf = figure_dir / "fig9_multiscale_robustness.pdf"
-    fig.savefig(png, dpi=300, bbox_inches="tight")
-    fig.savefig(pdf, bbox_inches="tight")
-    plt.close(fig)
-    Image.open(png).convert("L").convert("RGB").save(
-        figure_dir / "fig9_multiscale_robustness_grayscale.png"
+    axes[1].yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
+    add_direct_line_labels(
+        axes[1],
+        share_frames,
+        x_col="cell_m",
+        y_col="stable_mismatch_area_share",
     )
+    for ax in axes:
+        ax.axvline(500, color=GRID, linewidth=0.8, linestyle="--", zorder=0)
+        style_numeric_axis(ax, axis="y")
+
+    save_publication_figure(fig, figure_dir, "fig9_multiscale_robustness")
 
 
 def main() -> None:

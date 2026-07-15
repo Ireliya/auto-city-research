@@ -20,9 +20,24 @@ import numpy as np
 import osmnx as ox
 import pandas as pd
 import seaborn as sns
-from PIL import Image
 from scipy.stats import spearmanr
 from shapely.geometry import box
+
+from figure_style import (
+    CMAP_DIVERGING,
+    INK,
+    add_panel_label,
+    apply_publication_style,
+    color_for_event,
+    mm_to_inches,
+    save_publication_figure,
+    style_numeric_axis,
+)
+
+
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = ["Arial", "DejaVu Sans", "Liberation Sans"]
+plt.rcParams["svg.fonttype"] = "none"
 
 
 EVENT_OSM_DATES = {
@@ -220,18 +235,8 @@ def build_profiles(joined: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd
 
 def make_figure(profile: pd.DataFrame, correlations: pd.DataFrame, out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
-    sns.set_theme(style="whitegrid", context="paper", font_scale=0.95)
-    plt.rcParams.update(
-        {
-            "font.family": "DejaVu Sans",
-            "pdf.fonttype": 42,
-            "ps.fonttype": 42,
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-            "savefig.dpi": 300,
-            "savefig.bbox": "tight",
-        }
-    )
+    sns.set_theme(style="white", context="paper")
+    apply_publication_style()
     data = profile[
         profile["group"].isin(["all_events", "hurricane-harvey", "santa-rosa-wildfire"])
         & profile["variable"].isin(["osm_building_area_fraction", "osm_building_density_per_km2", "total_area_m2"])
@@ -251,38 +256,61 @@ def make_figure(profile: pd.DataFrame, correlations: pd.DataFrame, out_dir: Path
     corr["event_label"] = corr["group"].map(EVENT_LABELS)
     corr = corr.set_index("event_label").reindex(["Harvey", "Mexico EQ", "Palu", "Santa Rosa"]).reset_index()
 
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.2), constrained_layout=True)
+    max_abs = max(1.0, float(matrix.abs().max().max()))
+    fig, axes = plt.subplots(
+        1,
+        2,
+        figsize=(mm_to_inches(183), mm_to_inches(80)),
+        constrained_layout=True,
+    )
     sns.heatmap(
         matrix,
         ax=axes[0],
-        cmap="RdBu_r",
+        cmap=CMAP_DIVERGING,
         center=0,
+        vmin=-max_abs,
+        vmax=max_abs,
         annot=True,
         fmt=".2f",
-        cbar_kws={"label": "SMD\n(mismatch - other)"},
+        linewidths=0.6,
+        linecolor="white",
+        cbar_kws={"label": "Standardized mean difference\n(mismatch - other)", "shrink": 0.82},
     )
-    axes[0].set_title("a  Independent building-form profile")
+    axes[0].set_title("Independent building-form profile", loc="left", pad=7)
+    add_panel_label(axes[0], "a", x=-0.17, y=1.04)
     axes[0].set_xlabel("")
     axes[0].set_ylabel("")
+    axes[0].tick_params(axis="x", rotation=0)
+    for text, value in zip(axes[0].texts, matrix.to_numpy().ravel()):
+        text.set_color("white" if abs(float(value)) >= 0.58 * max_abs else INK)
+        text.set_fontsize(6.8)
 
-    axes[1].barh(
-        corr["event_label"],
-        corr["spearman_osm_area_fraction_vs_xbd_area"],
-        color=sns.color_palette("colorblind", n_colors=len(corr)),
+    values = corr["spearman_osm_area_fraction_vs_xbd_area"].to_numpy()
+    y = np.arange(len(corr))
+    axes[1].hlines(y, 0, values, color="#D6DCE1", linewidth=1.5, zorder=1)
+    axes[1].scatter(
+        values,
+        y,
+        s=34,
+        color=[color_for_event(label) for label in corr["event_label"]],
+        edgecolor="white",
+        linewidth=0.5,
+        zorder=3,
     )
-    axes[1].axvline(0, color="0.3", linewidth=0.8)
+    for idx, row in corr.iterrows():
+        value = float(row["spearman_osm_area_fraction_vs_xbd_area"])
+        axes[1].text(value + 0.035, idx, f"{value:.2f}  n={int(row['n']):,}", va="center", fontsize=6.2)
+    axes[1].set_yticks(y, corr["event_label"])
+    axes[1].invert_yaxis()
+    axes[1].axvline(0, color="#777777", linewidth=0.8)
     axes[1].set_xlim(-1, 1)
     axes[1].set_xlabel("Spearman rho")
     axes[1].set_ylabel("")
-    axes[1].set_title("b  OSM vs xBD area")
-    axes[1].grid(axis="x", color="0.88", linewidth=0.6)
-    axes[1].grid(axis="y", visible=False)
+    axes[1].set_title("OSM vs xBD mapped area", loc="left", pad=7)
+    add_panel_label(axes[1], "b", x=-0.18, y=1.04)
+    style_numeric_axis(axes[1], axis="x")
 
-    fig.savefig(out_dir / "fig7_osm_building_form_robustness.png")
-    fig.savefig(out_dir / "fig7_osm_building_form_robustness.pdf")
-    plt.close(fig)
-    image = Image.open(out_dir / "fig7_osm_building_form_robustness.png").convert("L")
-    image.save(out_dir / "fig7_osm_building_form_robustness_grayscale.png")
+    save_publication_figure(fig, out_dir, "fig7_osm_building_form_robustness")
 
 
 def write_manifest(out_dir: Path, args: argparse.Namespace, fetch_logs: list[dict]) -> None:

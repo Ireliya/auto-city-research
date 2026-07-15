@@ -28,11 +28,24 @@ import pandas as pd
 import requests
 import seaborn as sns
 import yaml
-from PIL import Image
 from scipy.stats import kendalltau, spearmanr
 from sklearn.metrics import ndcg_score
 
 from evidence_utils import add_need_indicators, add_scenario_scores, load_need_scenarios, minmax
+from figure_style import (
+    BLUE,
+    NEUTRAL,
+    add_panel_label,
+    apply_publication_style,
+    mm_to_inches,
+    save_publication_figure,
+    style_numeric_axis,
+)
+
+
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = ["Arial", "DejaVu Sans", "Liberation Sans"]
+plt.rcParams["svg.fonttype"] = "none"
 
 
 FEMA_API = "https://www.fema.gov/api/open/v2/FimaNfipClaims"
@@ -558,21 +571,27 @@ def make_figure(metrics: pd.DataFrame, figure_dir: Path) -> None:
     ].copy()
     if selected.empty:
         return
-    sns.set_theme(style="whitegrid", context="paper", font_scale=0.88)
-    plt.rcParams.update({"font.family": "DejaVu Sans", "pdf.fonttype": 42, "ps.fonttype": 42})
+    sns.set_theme(style="white", context="paper")
+    apply_publication_style()
     figure_dir.mkdir(parents=True, exist_ok=True)
     order = [MODEL_LABELS.get(model, model) for model in MODEL_LABELS if model in set(selected["model"])]
-    fig, axes = plt.subplots(1, 2, figsize=(8.2, 3.7), constrained_layout=True)
-    for ax, metric, title in zip(
+    fig, axes = plt.subplots(
+        1,
+        2,
+        figsize=(mm_to_inches(183), mm_to_inches(92)),
+        constrained_layout=True,
+    )
+    for panel_label, ax, metric, title in zip(
+        ["a", "b"],
         axes,
         ["spearman_rho", "ndcg_at_20pct"],
-        ["a  Rank correlation with NFIP paid loss", "b  Top-20% NDCG with NFIP paid loss"],
+        ["Rank correlation with NFIP paid loss", "Top-20% NDCG with NFIP paid loss"],
     ):
         data = selected[selected["metric"] == metric].set_index("model_label").reindex(order).reset_index()
         y = np.arange(len(data))
         lower = data["value"].to_numpy() - data["ci_low"].to_numpy()
         upper = data["ci_high"].to_numpy() - data["value"].to_numpy()
-        colors = ["#666666" if not str(label).startswith("Need:") else "#0072B2" for label in data["model_label"]]
+        colors = [NEUTRAL if not str(label).startswith("Need:") else BLUE for label in data["model_label"]]
         for idx in range(len(data)):
             ax.errorbar(
                 data.loc[idx, "value"],
@@ -580,21 +599,39 @@ def make_figure(metrics: pd.DataFrame, figure_dir: Path) -> None:
                 xerr=np.array([[lower[idx]], [upper[idx]]]),
                 fmt="o",
                 color=colors[idx],
-                capsize=2,
+                capsize=2.5,
+                elinewidth=1.15,
+                markersize=4.5,
+            )
+            ax.text(
+                float(data.loc[idx, "ci_high"]) + 0.012,
+                y[idx],
+                f"{float(data.loc[idx, 'value']):.2f}",
+                va="center",
+                fontsize=6.1,
+                color=colors[idx],
             )
         ax.set_yticks(y, data["model_label"])
-        ax.set_title(title)
+        ax.invert_yaxis()
+        ax.axhline(3.5, color="#D9DEE3", linewidth=0.8)
+        if metric == "spearman_rho":
+            ax.axvline(0, color="#9A9A9A", linewidth=0.75, linestyle="--")
+        ax.set_title(title, loc="left", pad=7)
+        add_panel_label(ax, panel_label, x=-0.18, y=1.04)
         ax.set_xlabel("Metric value with 95% tract-bootstrap interval")
-        ax.grid(axis="x", color="0.88", linewidth=0.6)
-        ax.grid(axis="y", visible=False)
-    png = figure_dir / "fig10_harvey_nfip_validation.png"
-    pdf = figure_dir / "fig10_harvey_nfip_validation.pdf"
-    fig.savefig(png, dpi=300, bbox_inches="tight")
-    fig.savefig(pdf, bbox_inches="tight")
-    plt.close(fig)
-    Image.open(png).convert("L").convert("RGB").save(
-        figure_dir / "fig10_harvey_nfip_validation_grayscale.png"
+        ax.margins(x=0.12)
+        style_numeric_axis(ax, axis="x")
+    tract_n = int(selected["tracts"].max())
+    fig.text(
+        0.5,
+        -0.015,
+        f"Harvey NFIP total paid amount | n = {tract_n} tracts | intervals from tract bootstrap",
+        ha="center",
+        va="top",
+        fontsize=6.3,
+        color="#555555",
     )
+    save_publication_figure(fig, figure_dir, "fig10_harvey_nfip_validation")
 
 
 def main() -> None:

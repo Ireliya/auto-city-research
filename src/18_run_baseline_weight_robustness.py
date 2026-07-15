@@ -18,7 +18,6 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import yaml
-from PIL import Image
 
 from evidence_utils import (
     INDICATOR_COLUMNS,
@@ -29,6 +28,21 @@ from evidence_utils import (
     load_need_scenarios,
     require_finite,
 )
+from figure_style import (
+    CMAP_BLUE,
+    add_panel_label,
+    apply_publication_style,
+    color_for_event,
+    mm_to_inches,
+    save_publication_figure,
+    set_heatmap_annotation_contrast,
+    style_numeric_axis,
+)
+
+
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = ["Arial", "DejaVu Sans", "Liberation Sans"]
+plt.rcParams["svg.fonttype"] = "none"
 
 
 EVENT_LABELS = {
@@ -248,47 +262,87 @@ def run_weight_uncertainty(
 
 
 def make_figure(baseline_summary: pd.DataFrame, weight_summary: pd.DataFrame, figure_dir: Path) -> None:
-    sns.set_theme(style="whitegrid", context="paper", font_scale=0.9)
-    plt.rcParams.update({"font.family": "DejaVu Sans", "pdf.fonttype": 42, "ps.fonttype": 42})
+    sns.set_theme(style="white", context="paper")
+    apply_publication_style()
     figure_dir.mkdir(parents=True, exist_ok=True)
 
     baseline_top20 = baseline_summary[baseline_summary["top_share"].round(2) == 0.20].copy()
     baseline_top20["event_label"] = baseline_top20["event"].map(EVENT_LABELS).fillna(baseline_top20["event"])
-    pivot = baseline_top20.pivot(index="event_label", columns="baseline_label", values="stable_mismatch_count")
+    event_order = ["Harvey", "Mexico EQ", "Palu", "Santa Rosa"]
+    baseline_order = [
+        "Area-weighted mean severity",
+        "Damage-weighted building area",
+        "Damaged building count",
+        "Severe building count",
+    ]
+    baseline_display = {
+        "Area-weighted mean severity": "Mean severity",
+        "Damage-weighted building area": "Weighted area",
+        "Damaged building count": "Damage count",
+        "Severe building count": "Severe count",
+    }
+    pivot = (
+        baseline_top20.pivot(index="event_label", columns="baseline_label", values="stable_mismatch_count")
+        .reindex(event_order)[baseline_order]
+        .rename(columns=baseline_display)
+    )
 
     weights_top20 = weight_summary[
         (weight_summary["top_share"].round(2) == 0.20)
         & (weight_summary["regime"] == "policy_plausible")
     ].copy()
     weights_top20["event_label"] = weights_top20["event"].map(EVENT_LABELS).fillna(weights_top20["event"])
-    weights_top20 = weights_top20.sort_values("mismatch_count_median", ascending=True)
+    weights_top20 = weights_top20.set_index("event_label").reindex(event_order).reset_index()
 
-    fig, axes = plt.subplots(1, 2, figsize=(8.2, 3.4), constrained_layout=True)
-    sns.heatmap(pivot, annot=True, fmt=".0f", cmap="YlGnBu", cbar_kws={"label": "Mismatch cells"}, ax=axes[0])
-    axes[0].set_title("a  Damage-baseline robustness (top 20%)")
+    fig, axes = plt.subplots(
+        1,
+        2,
+        figsize=(mm_to_inches(183), mm_to_inches(84)),
+        constrained_layout=True,
+    )
+    sns.heatmap(
+        pivot,
+        annot=True,
+        fmt=".0f",
+        cmap=CMAP_BLUE,
+        vmin=0,
+        linewidths=0.6,
+        linecolor="white",
+        cbar_kws={"label": "Mismatch cells", "shrink": 0.82, "pad": 0.025},
+        ax=axes[0],
+    )
+    axes[0].set_title("Damage-baseline robustness (top 20%)", loc="left", pad=7)
+    add_panel_label(axes[0], "a", x=-0.17, y=1.04)
     axes[0].set_xlabel("")
     axes[0].set_ylabel("")
-    axes[0].tick_params(axis="x", rotation=28)
+    axes[0].tick_params(axis="x", rotation=0, labelsize=6.1)
+    set_heatmap_annotation_contrast(axes[0], pivot.to_numpy())
 
     y = np.arange(len(weights_top20))
     med = weights_top20["mismatch_count_median"].to_numpy()
     lower = med - weights_top20["mismatch_count_q025"].to_numpy()
     upper = weights_top20["mismatch_count_q975"].to_numpy() - med
-    axes[1].errorbar(med, y, xerr=np.vstack([lower, upper]), fmt="o", color="#0072B2", capsize=3)
+    for idx, row in weights_top20.iterrows():
+        axes[1].errorbar(
+            med[idx],
+            y[idx],
+            xerr=np.array([[lower[idx]], [upper[idx]]]),
+            fmt="o",
+            color=color_for_event(row["event_label"]),
+            capsize=2.5,
+            elinewidth=1.2,
+            markersize=4.8,
+        )
+        axes[1].text(float(row["mismatch_count_q975"]) + 1.2, y[idx], f"{med[idx]:.0f}", va="center", fontsize=6.3)
     axes[1].set_yticks(y, weights_top20["event_label"])
+    axes[1].invert_yaxis()
     axes[1].set_xlabel("Mismatch cells, median and 95% interval")
-    axes[1].set_title("b  Policy-plausible weight uncertainty")
-    axes[1].grid(axis="x", color="0.88", linewidth=0.6)
-    axes[1].grid(axis="y", visible=False)
+    axes[1].set_title("Policy-plausible weight uncertainty", loc="left", pad=7)
+    add_panel_label(axes[1], "b", x=-0.18, y=1.04)
+    axes[1].margins(x=0.12)
+    style_numeric_axis(axes[1], axis="x")
 
-    png = figure_dir / "fig8_baseline_weight_robustness.png"
-    pdf = figure_dir / "fig8_baseline_weight_robustness.pdf"
-    fig.savefig(png, dpi=300, bbox_inches="tight")
-    fig.savefig(pdf, bbox_inches="tight")
-    plt.close(fig)
-    Image.open(png).convert("L").convert("RGB").save(
-        figure_dir / "fig8_baseline_weight_robustness_grayscale.png"
-    )
+    save_publication_figure(fig, figure_dir, "fig8_baseline_weight_robustness")
 
 
 def main() -> None:

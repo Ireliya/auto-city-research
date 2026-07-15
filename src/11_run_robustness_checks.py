@@ -21,7 +21,24 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from PIL import Image
+
+from figure_style import (
+    CMAP_ROSE,
+    add_direct_line_labels,
+    add_panel_label,
+    apply_publication_style,
+    color_for_event,
+    marker_for_event,
+    mm_to_inches,
+    save_publication_figure,
+    set_heatmap_annotation_contrast,
+    style_numeric_axis,
+)
+
+
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = ["Arial", "DejaVu Sans", "Liberation Sans"]
+plt.rcParams["svg.fonttype"] = "none"
 
 
 EVENT_LABELS = {
@@ -172,6 +189,7 @@ def write_summary(
 ) -> None:
     primary = threshold[threshold["top_share"] == 0.20].copy()
     total_stable = int(primary["stable_mismatch_count"].sum())
+    top30 = threshold[threshold["top_share"] == 0.30].groupby("event")["stable_mismatch_count"].sum()
     stable_two_plus = stability[stability["need_top_scenario_count"] >= 2].groupby("event")["cell_count"].sum()
     lines = [
         "# Robustness Checks v1",
@@ -264,19 +282,8 @@ def write_summary(
 
 
 def setup_style() -> None:
-    sns.set_theme(style="whitegrid", context="paper", font_scale=0.95)
-    plt.rcParams.update(
-        {
-            "font.family": "DejaVu Sans",
-            "pdf.fonttype": 42,
-            "ps.fonttype": 42,
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-            "figure.dpi": 150,
-            "savefig.dpi": 300,
-            "savefig.bbox": "tight",
-        }
-    )
+    sns.set_theme(style="white", context="paper")
+    apply_publication_style()
 
 
 def make_figure(threshold: pd.DataFrame, stability: pd.DataFrame, figure_dir: Path) -> None:
@@ -293,49 +300,59 @@ def make_figure(threshold: pd.DataFrame, stability: pd.DataFrame, figure_dir: Pa
     )
     matrix.columns = [f"{int(col)} scenario" if int(col) == 1 else f"{int(col)} scenarios" for col in matrix.columns]
 
-    palette = sns.color_palette("colorblind", n_colors=len(EVENT_ORDER))
-    markers = ["o", "s", "^", "D"]
-    fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.1), constrained_layout=True)
+    fig, axes = plt.subplots(
+        1,
+        2,
+        figsize=(mm_to_inches(183), mm_to_inches(78)),
+        constrained_layout=True,
+    )
 
-    for idx, event in enumerate(EVENT_ORDER):
+    line_frames = []
+    for event in EVENT_ORDER:
         event_df = threshold[threshold["event"] == event]
+        label = EVENT_LABELS[event]
         axes[0].plot(
             event_df["inspection_budget_pct"],
             event_df["stable_mismatch_count"],
-            marker=markers[idx],
+            marker=marker_for_event(label),
             linewidth=1.7,
             markersize=4.5,
-            color=palette[idx],
-            label=EVENT_LABELS[event],
+            color=color_for_event(label),
+            label=label,
         )
-    axes[0].set_title("a  Threshold sensitivity")
+        line_frames.append((label, event_df))
+    axes[0].set_title("Threshold sensitivity", loc="left", pad=7)
+    add_panel_label(axes[0], "a", x=-0.15, y=1.04)
     axes[0].set_xlabel("Priority inspection budget (% cells)")
     axes[0].set_ylabel("Stable mismatch cells")
     axes[0].set_xticks([10, 15, 20, 25, 30])
-    axes[0].legend(frameon=False, fontsize=7, loc="upper left")
-    axes[0].grid(axis="y", color="0.88", linewidth=0.6)
-    axes[0].grid(axis="x", visible=False)
+    style_numeric_axis(axes[0], axis="y")
+    add_direct_line_labels(
+        axes[0],
+        line_frames,
+        x_col="inspection_budget_pct",
+        y_col="stable_mismatch_count",
+    )
 
     sns.heatmap(
         matrix,
         ax=axes[1],
-        cmap="magma",
+        cmap=CMAP_ROSE,
         annot=True,
         fmt=".0f",
-        linewidths=0.4,
+        vmin=0,
+        linewidths=0.6,
         linecolor="white",
-        cbar_kws={"label": "Cells outside damage top-20"},
+        cbar_kws={"label": "Cells outside damage top-20", "shrink": 0.82, "pad": 0.025},
     )
-    axes[1].set_title("b  Scenario consensus at top-20")
+    axes[1].set_title("Scenario consensus at top-20", loc="left", pad=7)
+    add_panel_label(axes[1], "b", x=-0.18, y=1.04)
     axes[1].set_xlabel("")
     axes[1].set_ylabel("")
+    axes[1].tick_params(axis="x", rotation=0)
+    set_heatmap_annotation_contrast(axes[1], matrix.to_numpy())
 
-    fig.savefig(figure_dir / "fig5_robustness_checks.png")
-    fig.savefig(figure_dir / "fig5_robustness_checks.pdf")
-    plt.close(fig)
-
-    with Image.open(figure_dir / "fig5_robustness_checks.png") as img:
-        img.convert("L").save(figure_dir / "fig5_robustness_checks_grayscale.png")
+    save_publication_figure(fig, figure_dir, "fig5_robustness_checks")
 
 
 def main() -> None:

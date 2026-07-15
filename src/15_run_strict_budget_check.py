@@ -23,7 +23,25 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from PIL import Image
+
+from figure_style import (
+    BLUE,
+    LIGHT_NEUTRAL,
+    NEUTRAL,
+    add_direct_line_labels,
+    add_panel_label,
+    apply_publication_style,
+    color_for_event,
+    marker_for_event,
+    mm_to_inches,
+    save_publication_figure,
+    style_numeric_axis,
+)
+
+
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = ["Arial", "DejaVu Sans", "Liberation Sans"]
+plt.rcParams["svg.fonttype"] = "none"
 
 
 EVENT_LABELS = {
@@ -199,19 +217,8 @@ def top20_cells(grid: pd.DataFrame, scenarios: list[str]) -> pd.DataFrame:
 
 
 def setup_style() -> None:
-    sns.set_theme(style="whitegrid", context="paper", font_scale=0.95)
-    plt.rcParams.update(
-        {
-            "font.family": "DejaVu Sans",
-            "pdf.fonttype": 42,
-            "ps.fonttype": 42,
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-            "figure.dpi": 150,
-            "savefig.dpi": 300,
-            "savefig.bbox": "tight",
-        }
-    )
+    sns.set_theme(style="white", context="paper")
+    apply_publication_style()
 
 
 def make_figure(summary: pd.DataFrame, primary_summary: pd.DataFrame, out_dir: Path) -> None:
@@ -233,50 +240,76 @@ def make_figure(summary: pd.DataFrame, primary_summary: pd.DataFrame, out_dir: P
     compare = pd.concat([primary, strict], ignore_index=True)
     compare["event_label"] = compare["event"].map(EVENT_LABELS)
 
-    fig, axes = plt.subplots(1, 2, figsize=(7.5, 3.2), constrained_layout=True)
-
-    sns.lineplot(
-        data=data,
-        x="top_share",
-        y="strict_stable_mismatch_count",
-        hue="event_label",
-        hue_order=event_order_labels,
-        marker="o",
-        ax=axes[0],
-        palette="colorblind",
+    fig, axes = plt.subplots(
+        1,
+        2,
+        figsize=(mm_to_inches(183), mm_to_inches(80)),
+        constrained_layout=True,
     )
-    axes[0].set_title("a  Exact-budget sensitivity")
+
+    line_frames = []
+    for event in EVENT_ORDER:
+        event_df = data[data["event"] == event]
+        label = EVENT_LABELS[event]
+        axes[0].plot(
+            event_df["top_share"],
+            event_df["strict_stable_mismatch_count"],
+            color=color_for_event(label),
+            marker=marker_for_event(label),
+            label=label,
+        )
+        line_frames.append((label, event_df))
+    axes[0].set_title("Exact-budget sensitivity", loc="left", pad=7)
+    add_panel_label(axes[0], "a", x=-0.15, y=1.04)
     axes[0].set_xlabel("Inspection budget")
     axes[0].set_ylabel("Stable mismatch cells")
     axes[0].set_xticks(TOP_SHARES)
     axes[0].set_xticklabels([f"{int(s * 100)}%" for s in TOP_SHARES])
-    axes[0].legend(title="", fontsize=7, loc="upper left")
-
-    sns.barplot(
-        data=compare,
-        x="event_label",
-        y="count",
-        hue="rule",
-        order=event_order_labels,
-        ax=axes[1],
-        palette=["#7a7a7a", "#0072B2"],
+    style_numeric_axis(axes[0], axis="y")
+    add_direct_line_labels(
+        axes[0],
+        line_frames,
+        x_col="top_share",
+        y_col="strict_stable_mismatch_count",
     )
-    axes[1].set_title("b  Top-20 rule comparison")
-    axes[1].set_xlabel("")
-    axes[1].set_ylabel("Stable mismatch cells")
-    axes[1].tick_params(axis="x", rotation=25)
-    axes[1].legend(title="", fontsize=7, loc="upper right")
 
-    for ax in axes:
-        ax.grid(axis="y", color="0.88", linewidth=0.6)
-        ax.grid(axis="x", visible=False)
+    paired = compare.pivot(index="event_label", columns="rule", values="count").reindex(event_order_labels)
+    y = list(range(len(paired)))
+    primary_values = paired["Percentile rule"].to_numpy()
+    strict_values = paired["Exact top-k budget"].to_numpy()
+    for idx, (left, right) in enumerate(zip(primary_values, strict_values)):
+        axes[1].plot([left, right], [idx, idx], color=LIGHT_NEUTRAL, linewidth=2.0, zorder=1)
+    axes[1].scatter(
+        primary_values,
+        y,
+        s=28,
+        facecolors="white",
+        edgecolors=NEUTRAL,
+        linewidths=1.1,
+        label="Percentile rule",
+        zorder=3,
+    )
+    axes[1].scatter(
+        strict_values,
+        y,
+        s=30,
+        color=BLUE,
+        label="Exact top-k budget",
+        zorder=4,
+    )
+    for idx, value in enumerate(strict_values):
+        axes[1].text(value + 1.2, idx, f"{int(value)}", va="center", fontsize=6.3, color=BLUE)
+    axes[1].set_yticks(y, event_order_labels)
+    axes[1].invert_yaxis()
+    axes[1].set_title("Top-20 rule comparison", loc="left", pad=7)
+    add_panel_label(axes[1], "b", x=-0.18, y=1.04)
+    axes[1].set_xlabel("Stable mismatch cells")
+    axes[1].set_ylabel("")
+    axes[1].legend(loc="lower right", fontsize=6.2, handletextpad=0.4)
+    axes[1].margins(x=0.16)
+    style_numeric_axis(axes[1], axis="x")
 
-    fig.savefig(out_dir / "fig6_strict_budget_check.png")
-    fig.savefig(out_dir / "fig6_strict_budget_check.pdf")
-    plt.close(fig)
-
-    image = Image.open(out_dir / "fig6_strict_budget_check.png").convert("L")
-    image.save(out_dir / "fig6_strict_budget_check_grayscale.png")
+    save_publication_figure(fig, out_dir, "fig6_strict_budget_check")
 
 
 def write_summary(
