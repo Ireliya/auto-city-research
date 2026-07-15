@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import time
 from pathlib import Path
 
 import yaml
@@ -40,13 +41,28 @@ def main() -> None:
     args = parse_args()
     out_dir = args.local_dir.resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
-    downloaded = snapshot_download(
-        repo_id=args.repo_id,
-        repo_type="dataset",
-        revision=args.revision,
-        local_dir=out_dir,
-        allow_patterns=DEFAULT_ALLOW_PATTERNS,
-    )
+    last_error: Exception | None = None
+    downloaded = None
+    for attempt in range(1, 4):
+        try:
+            downloaded = snapshot_download(
+                repo_id=args.repo_id,
+                repo_type="dataset",
+                revision=args.revision,
+                local_dir=out_dir,
+                allow_patterns=DEFAULT_ALLOW_PATTERNS,
+            )
+            if (out_dir / "MANIFEST.csv").is_file():
+                break
+            last_error = RuntimeError("snapshot completed without MANIFEST.csv")
+        except Exception as exc:  # Network and hub errors are retried uniformly.
+            last_error = exc
+        if attempt < 3:
+            time.sleep(2**attempt)
+    if not (out_dir / "MANIFEST.csv").is_file():
+        raise RuntimeError(
+            "Pinned snapshot download failed after 3 attempts; MANIFEST.csv is missing"
+        ) from last_error
     print(f"repo_id={args.repo_id}")
     print(f"revision={args.revision}")
     print(f"downloaded_to={downloaded}")
