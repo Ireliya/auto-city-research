@@ -82,9 +82,9 @@ def figure_event_summary(summary: pd.DataFrame, out_dir: Path) -> None:
     )
 
     axes[0].barh(data["event_label"], data["stable_mismatch_share"] * 100, color=colors, height=0.62)
-    axes[0].set_xlabel("Stable mismatch cells (%)")
+    axes[0].set_xlabel("Scenario-consensus disagreement cells (%)")
     axes[0].set_ylabel("")
-    axes[0].set_title("Mismatch prevalence", loc="left", pad=7)
+    axes[0].set_title("Disagreement prevalence", loc="left", pad=7)
     add_panel_label(axes[0], "a", x=-0.17, y=1.04)
     for y, (_, row) in enumerate(data.iterrows()):
         axes[0].text(
@@ -99,7 +99,7 @@ def figure_event_summary(summary: pd.DataFrame, out_dir: Path) -> None:
 
     exposed = data["stable_mismatch_population_sum"] / 1000
     axes[1].barh(data["event_label"], exposed, color=colors, height=0.62)
-    axes[1].set_xlabel("Population in mismatch cells (thousands)")
+    axes[1].set_xlabel("Population in disagreement cells (thousands)")
     axes[1].set_ylabel("")
     axes[1].set_title("Exposed population", loc="left", pad=7)
     add_panel_label(axes[1], "b", x=-0.17, y=1.04)
@@ -149,7 +149,7 @@ def figure_scenario_heatmaps(metrics: pd.DataFrame, out_dir: Path) -> None:
         linecolor="white",
         cbar_kws={"label": "Top-20 Jaccard", "shrink": 0.78, "pad": 0.025},
     )
-    axes[0].set_title("Damage-need top overlap", loc="left", pad=7)
+    axes[0].set_title("Damage / multi-source top overlap", loc="left", pad=7)
     add_panel_label(axes[0], "a", x=-0.18, y=1.04)
     axes[0].set_xlabel("")
     axes[0].set_ylabel("")
@@ -165,9 +165,9 @@ def figure_scenario_heatmaps(metrics: pd.DataFrame, out_dir: Path) -> None:
         vmin=0,
         linewidths=0.6,
         linecolor="white",
-        cbar_kws={"label": "Mismatch cells", "shrink": 0.78, "pad": 0.025},
+        cbar_kws={"label": "Disagreement cells", "shrink": 0.78, "pad": 0.025},
     )
-    axes[1].set_title("High-need / low-damage cells", loc="left", pad=7)
+    axes[1].set_title("Multi-source / damage-only disagreement", loc="left", pad=7)
     add_panel_label(axes[1], "b", x=-0.18, y=1.04)
     axes[1].set_xlabel("")
     axes[1].set_ylabel("")
@@ -220,9 +220,9 @@ def figure_driver_profile(profile: pd.DataFrame, out_dir: Path) -> None:
         fmt=".2f",
         linewidths=0.55,
         linecolor="white",
-        cbar_kws={"label": "Standardized mean difference\n(mismatch - other)", "shrink": 0.82},
+        cbar_kws={"label": "Standardized mean difference\n(disagreement - other)", "shrink": 0.82},
     )
-    ax.set_title("Mismatch cells have distinct urban profiles", loc="left", pad=8)
+    ax.set_title("Disagreement cells have distinct urban profiles", loc="left", pad=8)
     ax.set_xlabel("")
     ax.set_ylabel("")
     ax.tick_params(axis="x", rotation=0)

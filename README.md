@@ -1,135 +1,105 @@
 # Damage Is Not Need
 
 <p>
-  <img src="logo.png" alt="auto city research logo" width="42" align="absmiddle">
-  <strong>auto city research</strong>
+  <img src="logo.png" alt="Auto-City-Research logo" width="42" align="absmiddle">
+  <strong>Auto-City-Research</strong>
 </p>
 
 <p>
-  <img src="github.svg" alt="GitHub" width="18" align="absmiddle">
+  <img src="github_icon.png" alt="GitHub" width="18" align="absmiddle">
   <strong>Code:</strong>
-  <strong><a href="https://github.com/Ireliya/auto-city-research">github.com/Ireliya/auto-city-research</a></strong>
-  <br>
-  <img src="huggingface.svg" alt="Hugging Face" width="18" align="absmiddle">
+  <strong><a href="https://github.com/Ireliya/auto-city-research">github.com/Ireliya/auto-city-research</a></strong><br>
+  <img src="huggingface_icon.png" alt="Hugging Face" width="18" align="absmiddle">
   <strong>Data:</strong>
   <strong><a href="https://huggingface.co/datasets/Ireliya/auto-city-research">huggingface.co/datasets/Ireliya/auto-city-research</a></strong>
 </p>
 
-Auditing damage-only disaster recovery priority with multi-source urban evidence.
+**Damage Is Not Need: Auditing Post-Disaster Priority Disagreement with Multi-Source Urban Evidence**
 
-Competition: Urban Cup 2026 Competition 2, Urban Science Vibe Research Challenge  
+Submission to [Urban Cup 2026 Competition 2](https://fi.ee.tsinghua.edu.cn/RSUSHD2026/).
 
-## What This Repository Does
+## Research Question
 
-Remote-sensing damage assessment can rapidly locate damaged buildings after a disaster. This project asks a different urban AI question:
+Satellite damage assessment can rapidly locate physically affected buildings. This project asks a narrower urban AI question:
 
-> If a disaster-response AI ranks recovery priority only from satellite-observed building damage, will it under-rank areas that become high need once population exposure, road accessibility, critical facilities, and local urban form are considered?
+> If post-disaster places are ranked only by satellite-observed building damage, where does that ranking disagree with transparent multi-source priority scenarios, and which disagreements remain stable across alternative data and analytical choices?
 
-The project builds a reproducible 500 m grid audit over four xBD/xView2 disaster events:
+We audit four xBD/xView2 event footprints using population exposure, road-access constraints, critical-service context, and descriptive urban form. The output is an auditable disagreement set for human review. It is not a ground-truth unmet-need model and not an operational dispatch system.
 
-- Hurricane Harvey
-- Mexico earthquake
-- Palu tsunami
-- Santa Rosa wildfire
+## Frozen Results
 
-The main result is a disagreement map between:
+- **99,629** xBD/xView2 building records across **1,448** reference 500 m cells.
+- WorldPop 100 m primary analysis: **73** percentile-consensus disagreements and **115** exact Top-20% disagreements.
+- WorldPop 1 km comparison: **67** and **109**, respectively.
+- **4** Mexico-earthquake cells pass all fixed non-temporal gates: at least 3/4 damage baselines, policy-weight disagreement probability at least 0.8, both population products, and spatial overlap at two or more scales.
+- **0** of those four cells receive supportive historical OSM persistence evidence.
+- Harvey boundary tests cover **149** SVI/NFIP tracts, **10,134** aggregated NFIP claims, and **41** FEMA RI-IHP ZIP aggregates. The proxy results are mixed and are reported as construct-specific evidence, not validation success.
 
-- `damage-only priority`: xBD building damage aggregated to 500 m cells
-- `need-aware priority`: damage plus WorldPop population, OSM roads, OSM facilities, and building-form proxies
+![Fixed-gate consensus audit](reports/figures/fig11_consensus_audit.png)
 
-## Key Results
+The narrow conclusion is that damage-only and multi-source priorities can disagree, but apparent disagreements shrink sharply under fixed robustness and temporal checks. The workflow exposes that uncertainty instead of selecting one proxy as universally correct.
 
-- 99,629 xBD building records parsed across four events.
-- 1,448 500 m grid cells analyzed.
-- 67 stable high-need / low-damage mismatch cells in the primary top-20 percentile audit:
-  - Hurricane Harvey: 46
-  - Mexico earthquake: 0
-  - Palu tsunami: 3
-  - Santa Rosa wildfire: 18
-- 109 stable mismatch cells in the exact top-20 budget check:
-  - Hurricane Harvey: 51
-  - Mexico earthquake: 37
-  - Palu tsunami: 3
-  - Santa Rosa wildfire: 18
-- 813,352 current OSM building polygons joined as an independent urban-form robustness layer.
-- Four alternative damage-only baselines preserve mismatch in every event at an exact top-20 budget. Harvey ranges from 27 to 51 mismatch cells and Santa Rosa from 18 to 41.
-- Across 10,000 policy-plausible weight vectors, the median exact top-20 mismatch count is 49 for Harvey and 21 for Santa Rosa.
-- Rebuilding the complete audit at 250 m, 500 m, and 1,000 m preserves the Harvey signal; its mismatch-area share is 9.22%, 8.33%, and 8.57%, respectively. Santa Rosa remains 8.09%, 5.11%, and 4.96%.
-- Harvey external validation covers 149 intersecting Census tracts and 10,134 aggregated NFIP claims. The result is mixed: need-aware rankings do not consistently outperform damage-only rankings against insured property losses.
-
-Interpretation: building damage is important, but it is not the same thing as recovery need. A disaster AI should expose where damage-only and need-aware rankings disagree, rather than treating visible building damage as the final priority list. NFIP is an insured-property-loss proxy, not ground truth for unmet rescue or recovery need, so the released disagreement map is an audit trigger for human review rather than a validated allocation rule.
-
-## Quick Reproduction
+## One-Command Reproduction
 
 ```bash
 git clone https://github.com/Ireliya/auto-city-research.git
 cd auto-city-research
 
-conda env create -f environment.yml
-conda activate city
-
 python -m pip install -r requirements.txt
-python scripts/reproduce_core.py
+python scripts/reproduce_core.py --profile final
 ```
 
-The command downloads a pinned Hugging Face snapshot, verifies its SHA-256 manifest, runs the headline smoke checks, and recomputes the offline core tables and figures. It does not require raw satellite imagery or GPU.
+The command downloads the immutable Hugging Face revision in `configs/public_release.yaml`, verifies `MANIFEST.csv`, runs the released-table smoke test, recomputes both population-resolution analyses and all three spatial scales, rebuilds the fixed consensus, verifies the four exact candidate keys, and regenerates Figures 11-12.
 
-## Recreate Main Tables And Figures
+The reviewer route is CPU-only. It does not require raw satellite imagery, source population rasters, personal records, or a GPU.
 
-For a fast result-only check after downloading the pinned snapshot:
+For a faster released-table check:
 
 ```bash
 python scripts/download_data.py
 python scripts/smoke_reproduce.py
 ```
 
-`scripts/reproduce_core.py` runs scripts `05`, `06`, `07`, `11`, `15`, `18`, and `19` with every required argument supplied. Script `19` uses the released prepared 250/500/1000 m grids so the scale analysis itself is offline and deterministic. Scripts `03`, `04`, `16`, `17`, and `20` depend on public web services or omitted source data and are excluded from per-commit CI; their released aggregate outputs remain downloadable.
-
-To regenerate the ten publication figures from the fixed derived tables:
-
-```bash
-python src/21_regenerate_publication_figures.py --no-basemap
-```
-
-Each figure is exported as editable SVG, vector PDF, 600 dpi PNG, and a grayscale-check PNG. Omit `--no-basemap` to add the attributed CARTO/OpenStreetMap background to Figure 4 when tile access is available.
-
-## Repository Structure
+Expected final checks include:
 
 ```text
-configs/      Fixed event, dataset, GPU, writing, and weight-scenario configs
-src/          Reproducible analysis, robustness, and figure scripts
-reports/      Paper/report sources and references; figures and PDF exports restored by data download
-records/      Claim-to-evidence ledgers restored after Hugging Face download
-data/         Lightweight data notes and manifests; derived data is downloaded from Hugging Face
-scripts/      Download and smoke-test helpers for open-source reproduction
+primary_100m_stable_mismatch_total: 73
+strict_100m_top20_stable_mismatch_total: 115
+final_consensus_candidates: 4
+temporally_supported_final_candidates: 0
+smoke reproduction OK
 ```
 
-## Data
+## Repository Map
 
-The GitHub repository intentionally does not store raw xBD satellite images. Use the Hugging Face dataset repository for lightweight derived tables and report artifacts:
-
-```bash
-python scripts/download_data.py --repo-id Ireliya/auto-city-research
+```text
+configs/       Fixed events, evidence gates, weights, and public revisions
+scripts/       Download, manifest verification, smoke test, and final orchestrator
+src/           Analysis, robustness, temporal audit, proxy tests, and figure code
+reports/       English paper, Chinese report, figures, and rendered PDFs
+records/       Final evidence freeze and claim-to-evidence ledgers
+data/          Source ledger and download notes; derived data arrives from Hugging Face
 ```
 
-The default dataset revision is pinned in `configs/public_release.yaml` so a future update to the dataset cannot silently change a reproduction run.
+The deterministic public route uses prepared, privacy-safe derived inputs. Network-dependent source acquisition remains separately callable through the relevant source scripts and is not treated as deterministic CI.
 
-For data source and redistribution boundaries, see:
+## Data And Privacy
 
-- `DATASET.md`
-- `reports/data_access_license_notes.md`
-- Hugging Face dataset card: https://huggingface.co/datasets/Ireliya/auto-city-research
+The paired [Hugging Face dataset](https://huggingface.co/datasets/Ireliya/auto-city-research) includes derived grids, aggregated validation tables, figures, reports, and evidence records. It excludes raw xBD imagery, raw WorldPop rasters, bulk OSM caches, individual insurance claims, person-level assistance records, credentials, and private infrastructure paths.
 
-## Compute Profile
+See [DATASET.md](DATASET.md) and [reports/data_access_license_notes.md](reports/data_access_license_notes.md) for source-specific licensing and redistribution boundaries.
 
-The main geospatial/statistical workflow is CPU-first. No GPU is required for the published mainline results.
+## Reports
+
+- [English research paper](reports/pdf/paper_en.pdf)
+- [Chinese competition report](reports/pdf/competition_report_cn.pdf)
+- [Data and reproducible-code guide](reports/pdf/data_description_reproducibility.pdf)
+- [AI collaboration record](reports/pdf/ai_collaboration_summary_cn.pdf)
 
 ## Citation
 
-If you use this repository, please cite:
-
 ```text
-auto city research. Damage Is Not Need: Auditing Damage-Only Disaster Recovery Priority with Multi-Source Urban Evidence. Urban Cup 2026 Competition 2.
+Auto-City-Research. Damage Is Not Need: Auditing Post-Disaster Priority Disagreement with Multi-Source Urban Evidence. Urban Cup 2026 Competition 2.
 ```
 
-See `CITATION.cff` for machine-readable citation metadata.
+Code is released under the MIT License. Derived artifacts remain subject to the upstream terms documented in the data notes.

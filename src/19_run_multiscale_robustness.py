@@ -71,6 +71,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--figure-dir", type=Path, default=Path("reports/figures"))
     parser.add_argument("--worldpop-raw-dir", type=Path, default=Path("data/raw/worldpop_rasters"))
     parser.add_argument("--osm-cache-dir", type=Path, default=Path("data/derived/osm_context_v1/osmnx_cache"))
+    parser.add_argument(
+        "--worldpop-resolution",
+        choices=["100m", "1km_ua"],
+        default="1km_ua",
+        help="WorldPop raster product used for every reconstructed scale.",
+    )
+    parser.add_argument(
+        "--reuse-osm-root",
+        type=Path,
+        help="Reuse prepared osm_<scale>m grids from another multiscale output root.",
+    )
+    parser.add_argument(
+        "--expected-500m-total",
+        type=int,
+        help="Optional regression assertion for the summed exact top-20 mismatch count.",
+    )
     parser.add_argument("--cell-sizes", default="", help="Optional comma-separated override")
     parser.add_argument(
         "--skip-preparation",
@@ -116,18 +132,19 @@ def prepare_scales(args: argparse.Namespace, cell_sizes: list[int]) -> list[dict
     damage_dir = args.out_dir / "damage"
     args.out_dir.mkdir(parents=True, exist_ok=True)
     logs: list[dict] = []
-    command = [
-        sys.executable,
-        "src/02_build_xbd_damage_grid.py",
-        "--buildings-csv",
-        str(args.buildings_csv),
-        "--out-dir",
-        str(damage_dir),
-        "--cell-sizes",
-        ",".join(str(size) for size in cell_sizes),
-    ]
-    run_command(command)
-    footprints = damage_dir / "event_footprints.csv"
+    if args.reuse_osm_root is None:
+        command = [
+            sys.executable,
+            "src/02_build_xbd_damage_grid.py",
+            "--buildings-csv",
+            str(args.buildings_csv),
+            "--out-dir",
+            str(damage_dir),
+            "--cell-sizes",
+            ",".join(str(size) for size in cell_sizes),
+        ]
+        run_command(command)
+        footprints = damage_dir / "event_footprints.csv"
 
     for cell_m in cell_sizes:
         entry: dict[str, object] = {
@@ -136,23 +153,29 @@ def prepare_scales(args: argparse.Namespace, cell_sizes: list[int]) -> list[dict
             "error": "",
         }
         try:
-            damage_grid = damage_dir / f"damage_grid_{cell_m}m.geojson"
-            osm_dir = args.out_dir / f"osm_{cell_m}m"
-            osm_command = [
-                sys.executable,
-                "src/03_fetch_osm_context.py",
-                "--damage-grid",
-                str(damage_grid),
-                "--footprints-csv",
-                str(footprints),
-                "--out-dir",
-                str(osm_dir),
-                "--cell-m",
-                str(cell_m),
-                "--cache-dir",
-                str(args.osm_cache_dir),
-            ]
-            run_command(osm_command)
+            if args.reuse_osm_root is not None:
+                osm_dir = args.reuse_osm_root / f"osm_{cell_m}m"
+                if not (osm_dir / f"damage_osm_grid_{cell_m}m.geojson").exists():
+                    raise FileNotFoundError(f"Reusable OSM grid is missing: {osm_dir}")
+                entry["osm_source"] = display_path(osm_dir)
+            else:
+                damage_grid = damage_dir / f"damage_grid_{cell_m}m.geojson"
+                osm_dir = args.out_dir / f"osm_{cell_m}m"
+                osm_command = [
+                    sys.executable,
+                    "src/03_fetch_osm_context.py",
+                    "--damage-grid",
+                    str(damage_grid),
+                    "--footprints-csv",
+                    str(footprints),
+                    "--out-dir",
+                    str(osm_dir),
+                    "--cell-m",
+                    str(cell_m),
+                    "--cache-dir",
+                    str(args.osm_cache_dir),
+                ]
+                run_command(osm_command)
             validate_osm_fetch(osm_dir / "osm_fetch_log.csv")
 
             worldpop_dir = args.out_dir / f"worldpop_{cell_m}m"
@@ -170,7 +193,7 @@ def prepare_scales(args: argparse.Namespace, cell_sizes: list[int]) -> list[dict
                 "--mode",
                 "raster-download",
                 "--worldpop-resolution",
-                "1km_ua",
+                args.worldpop_resolution,
             ]
             run_command(worldpop_command)
             entry["status"] = "complete"
@@ -290,10 +313,10 @@ def make_figure(summary: pd.DataFrame, figure_dir: Path) -> None:
         )
         area_frames.append((label, event_df))
         share_frames.append((label, event_df))
-    axes[0].set_title("Mismatch area across grid scales", loc="left", pad=7)
+    axes[0].set_title("Disagreement area across grid scales", loc="left", pad=7)
     add_panel_label(axes[0], "a", x=-0.15, y=1.04)
     axes[0].set_xlabel("Grid size (m)")
-    axes[0].set_ylabel("Mismatch grid area (km2)")
+    axes[0].set_ylabel("Disagreement grid area (km2)")
     axes[0].set_xticks(sorted(top20["cell_m"].unique()))
     add_direct_line_labels(
         axes[0],
@@ -301,10 +324,10 @@ def make_figure(summary: pd.DataFrame, figure_dir: Path) -> None:
         x_col="cell_m",
         y_col="stable_mismatch_area_km2",
     )
-    axes[1].set_title("Mismatch area share across grid scales", loc="left", pad=7)
+    axes[1].set_title("Disagreement area share across grid scales", loc="left", pad=7)
     add_panel_label(axes[1], "b", x=-0.15, y=1.04)
     axes[1].set_xlabel("Grid size (m)")
-    axes[1].set_ylabel("Mismatch area share")
+    axes[1].set_ylabel("Disagreement area share")
     axes[1].set_xticks(sorted(top20["cell_m"].unique()))
     axes[1].yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
     add_direct_line_labels(
@@ -335,15 +358,18 @@ def main() -> None:
     cells.to_csv(args.out_dir / "multiscale_cell_or_area_summary.csv", index=False)
     make_figure(summary, args.figure_dir)
 
-    if 500 in completed:
+    if 500 in completed and args.expected_500m_total is not None:
         legacy_total = int(
             summary.loc[
                 (summary["cell_m"] == 500) & (summary["top_share"].round(2) == 0.20),
                 "stable_mismatch_count",
             ].sum()
         )
-        if legacy_total != 109:
-            raise AssertionError(f"500m exact top-20 result changed: expected 109, got {legacy_total}")
+        if legacy_total != args.expected_500m_total:
+            raise AssertionError(
+                "500m exact top-20 result changed: "
+                f"expected {args.expected_500m_total}, got {legacy_total}"
+            )
 
     manifest = {
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -351,7 +377,9 @@ def main() -> None:
         "cell_sizes_requested_m": cell_sizes,
         "cell_sizes_completed_m": completed,
         "top_shares": top_shares,
-        "ranking_rule": "exact top-k; high need in at least two fixed scenarios and outside damage-only top-k",
+        "worldpop_resolution": args.worldpop_resolution,
+        "reuse_osm_root": display_path(args.reuse_osm_root) if args.reuse_osm_root else None,
+        "ranking_rule": "exact Top-k; selected by at least two fixed multi-source scenarios and outside damage-only Top-k",
         "source_rebuild": "Each scale is rebuilt from building-level xBD records, OSM roads/facilities, and WorldPop rasters.",
         "preparation": preparation,
         "outputs": [

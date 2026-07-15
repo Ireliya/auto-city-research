@@ -3,7 +3,7 @@
 
 The main analysis defines stable mismatch at a top-20 inspection budget. This
 script stress-tests that decision by varying the inspection budget and by
-summarizing how many need-aware scenarios agree on each high-need / low-damage
+summarizing how many multi-source scenarios agree on each priority-disagreement
 cell. It uses only derived CSV outputs; no raw imagery or GPU is required.
 """
 
@@ -211,9 +211,9 @@ def write_summary(
         "",
         "## Key Findings",
         "",
-        f"- At the pre-registered top-20 threshold, stable mismatch remains `{total_stable}` cells.",
+        f"- At the fixed Top-20% threshold, scenario-consensus disagreement remains `{total_stable}` cells.",
         "- Threshold sensitivity shows whether the same event ordering persists as the inspection budget changes from 10% to 30%.",
-        "- Scenario stability reports how many outside-damage-top cells are high need in one, two, or all three need-aware scenarios.",
+        "- Scenario stability reports how many outside-damage-top cells enter one, two, or all three multi-source priority scenarios.",
         "- Low-damage diagnostics identify Mexico as a boundary case where the damage-only top set is inflated by tied near-zero damage scores.",
         "",
         "## Top-20 Event Summary",
@@ -324,7 +324,7 @@ def make_figure(threshold: pd.DataFrame, stability: pd.DataFrame, figure_dir: Pa
     axes[0].set_title("Threshold sensitivity", loc="left", pad=7)
     add_panel_label(axes[0], "a", x=-0.15, y=1.04)
     axes[0].set_xlabel("Priority inspection budget (% cells)")
-    axes[0].set_ylabel("Stable mismatch cells")
+    axes[0].set_ylabel("Scenario-consensus disagreement cells")
     axes[0].set_xticks([10, 15, 20, 25, 30])
     style_numeric_axis(axes[0], axis="y")
     add_direct_line_labels(

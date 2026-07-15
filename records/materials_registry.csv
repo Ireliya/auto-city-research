@@ -1,0 +1,30 @@
+material_id,name,type,location,role,status,notes
+final-readme,README_FIRST.md,submission_navigation,<PROJECT_ROOT>/README_FIRST.md,judge_entry,available,Research question findings links and package index
+final-code-repository,Auto-City-Research GitHub,public_repository,https://github.com/Ireliya/auto-city-research,public_reproduction,available,Core code configs reports and CI
+final-data-repository,Auto-City-Research Hugging Face dataset,public_dataset,https://huggingface.co/datasets/Ireliya/auto-city-research,public_reproduction,available,Derived privacy-safe evidence with SHA-256 manifest
+final-release-config,public_release.yaml,config,<PROJECT_ROOT>/configs/public_release.yaml,revision_lock,available,Pins the immutable Hugging Face revision and GitHub release tag
+final-evidence-config,final_evidence.yaml,config,<PROJECT_ROOT>/configs/final_evidence.yaml,consensus_gates,available,Defines baseline probability population scale and temporal evidence rules
+final-weight-config,weight_scenarios.yaml,config,<PROJECT_ROOT>/configs/weight_scenarios.yaml,priority_scenarios,available,Defines transparent scenario weights and fixed uncertainty seed
+final-reproduce,reproduce_core.py,script,<PROJECT_ROOT>/scripts/reproduce_core.py,public_reproduction,available,One-command final deterministic reviewer route
+final-download,download_data.py,script,<PROJECT_ROOT>/scripts/download_data.py,data_download,available,Downloads only the pinned public evidence paths
+final-smoke,smoke_reproduce.py,script,<PROJECT_ROOT>/scripts/smoke_reproduce.py,result_verification,available,Checks all headline counts statuses and exact candidate keys
+final-consensus-script,24_build_final_consensus.py,script,<PROJECT_ROOT>/src/24_build_final_consensus.py,consensus_audit,available,Applies every fixed non-temporal gate and records temporal evidence separately
+final-population-audit-script,26_audit_population_resolution.py,script,<PROJECT_ROOT>/src/26_audit_population_resolution.py,population_quality,available,Compares 100m and 1km products across all events
+final-historical-script,22_run_historical_osm_sensitivity.py,script,<PROJECT_ROOT>/src/22_run_historical_osm_sensitivity.py,temporal_sensitivity,available,Uses coverage gates for pre-event OSM evidence
+final-proxy-script,23_validate_svi_ihp.py,script,<PROJECT_ROOT>/src/23_validate_svi_ihp.py,external_proxy_audit,available,Builds privacy-safe SVI and RI-IHP aggregate tests
+final-candidates,final_consensus_candidates.csv,derived_table,<PROJECT_ROOT>/data/derived/final_consensus_v1/final_consensus_candidates.csv,final_consensus,available,Contains four fixed-gate Mexico candidates
+final-consensus-manifest,final consensus manifest,manifest,<PROJECT_ROOT>/data/derived/final_consensus_v1/manifest.json,traceability,available,Records inputs outputs hashes parameters and gate counts
+final-figure11,fig11_consensus_audit,figure_set,<PROJECT_ROOT>/reports/figures/fig11_consensus_audit.svg,consensus_funnel,available,SVG PDF 600dpi PNG and grayscale-check PNG
+final-figure12,fig12_external_proxy_divergence,figure_set,<PROJECT_ROOT>/reports/figures/fig12_external_proxy_divergence.svg,proxy_divergence,available,SVG PDF 600dpi PNG and grayscale-check PNG
+final-paper,paper_en.pdf,report_pdf,<PROJECT_ROOT>/reports/pdf/paper_en.pdf,english_research_report,available,Final English paper with clickable code and data links
+final-chinese-report,competition_report_cn.pdf,report_pdf,<PROJECT_ROOT>/reports/pdf/competition_report_cn.pdf,chinese_competition_report,available,Final Chinese competition report
+final-data-guide,data_description_reproducibility.pdf,report_pdf,<PROJECT_ROOT>/reports/pdf/data_description_reproducibility.pdf,reproducibility_document,available,Data sources privacy boundaries and deterministic route
+final-ai-record,ai_collaboration_summary_cn.pdf,report_pdf,<PROJECT_ROOT>/reports/pdf/ai_collaboration_summary_cn.pdf,ai_collaboration_record,available,Auditable AI suggestions human decisions and verification
+final-logo,team_logo.png,brand_asset,<PROJECT_ROOT>/reports/assets/team_logo.png,team_identity,available,Transparent RGBA PNG
+final-github-icon,github_icon.png,brand_asset,<PROJECT_ROOT>/reports/assets/github_icon.png,code_link_identity,available,Transparent RGBA PNG
+final-hf-icon,huggingface_icon.png,brand_asset,<PROJECT_ROOT>/reports/assets/huggingface_icon.png,data_link_identity,available,Transparent RGBA PNG
+final-evidence-index,evidence_index.csv,ledger,<PROJECT_ROOT>/records/evidence_index.csv,claim_traceability,available,Every active claim points to an existing script and result
+final-evidence-freeze,final_evidence_freeze_20260715-1612.md,record,<PROJECT_ROOT>/records/final_evidence_freeze_20260715-1612.md,scientific_freeze,available,Canonical final numerical and claim boundary record
+final-research-log,research_log.md,log,<PROJECT_ROOT>/logs/research_log.md,process_record,available,Human-readable decisions outcomes failures and corrections
+final-ai-log,ai_collaboration_log.md,log,<PROJECT_ROOT>/logs/ai_collaboration_log.md,ai_process_record,available,AI inputs outputs human decisions and validation
+final-command-log,command_log.md,log,<PROJECT_ROOT>/logs/command_log.md,execution_record,available,Commands locations environment and compute-use record

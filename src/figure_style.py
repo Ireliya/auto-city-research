@@ -179,7 +179,13 @@ def save_publication_figure(
     plt.close(fig)
 
     with Image.open(outputs["png"]) as image:
-        rgb = image.convert("RGB")
+        if "A" in image.getbands():
+            rgba = image.convert("RGBA")
+            white = Image.new("RGBA", rgba.size, (255, 255, 255, 255))
+            white.alpha_composite(rgba)
+            rgb = white.convert("RGB")
+        else:
+            rgb = image.convert("RGB")
         width, height = rgb.size
         variation = sum(ImageStat.Stat(rgb.resize((96, 96))).stddev) / 3
         if width < 1200 or height < 700:
@@ -188,7 +194,7 @@ def save_publication_figure(
             raise RuntimeError(f"Figure preview appears blank: {basename}")
         if grayscale:
             gray_path = out_dir / f"{basename}_grayscale.png"
-            rgb.convert("L").save(gray_path, dpi=(dpi, dpi))
+            rgb.convert("L").convert("RGB").save(gray_path, dpi=(dpi, dpi))
             outputs["grayscale_png"] = gray_path
 
     svg_text = outputs["svg"].read_text(encoding="utf-8", errors="ignore")

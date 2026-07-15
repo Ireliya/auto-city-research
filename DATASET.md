@@ -1,32 +1,28 @@
 # Dataset And Download Notes
 
-Dataset repository:
+Dataset repository: [huggingface.co/datasets/Ireliya/auto-city-research](https://huggingface.co/datasets/Ireliya/auto-city-research)
 
-<https://huggingface.co/datasets/Ireliya/auto-city-research>
+Pinned revision: `0c56e1d43158e7b769316bee46a162c40a62d1d2`
 
-## What Is In The Downloadable Dataset
+## Included
 
-The Hugging Face dataset is intended to contain lightweight reproducibility artifacts:
+- parsed xBD/xView2 building-label tables and reference grids;
+- WorldPop 100 m primary and 1 km comparison joins;
+- four-baseline and weight-uncertainty outputs;
+- independently rebuilt 250, 500, and 1,000 m analyses;
+- current and pre-event OSM aggregate evidence;
+- privacy-safe NFIP, CDC SVI, and FEMA RI-IHP aggregate tables;
+- fixed-gate consensus candidates and manifests;
+- 12 figures in SVG, vector PDF, 600 dpi PNG, and grayscale-check PNG;
+- English and Chinese report PDFs and final evidence ledgers.
 
-- `data/derived/xbd_core_v1/`: parsed xBD building label tables and event summaries
-- `data/derived/xbd_damage_grid_v1/`: 500 m damage grid
-- `data/derived/osm_context_v1/`: OSM road and facility context joined to the grid
-- `data/derived/worldpop_context_v1/`: WorldPop population exposure joined to the grid
-- `data/derived/priority_mismatch_v1/`: primary damage-only vs need-aware mismatch outputs
-- `data/derived/mismatch_drivers_v1/`: driver-profile tables
-- `data/derived/robustness_v1/`: threshold and scenario-consensus robustness checks
-- `data/derived/strict_budget_v1/`: exact top-k budget robustness checks
-- `data/derived/osm_building_form_v1/`: independent OSM building-form robustness checks
-- `data/derived/evidence_hardening_v1/`: four damage baselines and 20,000 weight draws
-- `data/derived/multiscale_v1/`: released 250/500/1000 m prepared grids and scale results
-- `data/derived/harvey_external_validation_v1/`: privacy-safe tract aggregates, metrics, and bootstrap summaries
-- `reports/figures/`: publication figures
-- `reports/pdf/`: PDF exports of paper/report/data notes
-- `records/evidence_index.csv`: claim-to-evidence ledger
+## Excluded
 
-## What Is Not Redistributed
-
-The repository does not redistribute raw xBD satellite imagery, raw source rasters, map-tile caches, or individual NFIP claim rows. Users who want to rebuild from the raw source layer must obtain the source datasets under their own permitted access and licensing terms.
+- raw xBD satellite imagery and the full xBD archive;
+- raw WorldPop GeoTIFFs;
+- bulk OSM extracts, tile caches, and raw service-response caches;
+- individual NFIP claims or person/household assistance records;
+- credentials, private paths, and temporary files.
 
 ## Download
 
@@ -36,10 +32,10 @@ From the GitHub repository root:
 python scripts/download_data.py
 ```
 
-The script downloads the Hugging Face dataset snapshot into the local project tree while avoiding the dataset card overwrite of the GitHub README.
+The script preserves the GitHub README while restoring the pinned evidence files into their expected relative paths. The root `MANIFEST.csv` records SHA-256 and byte counts for every dataset-repository file except itself.
 
-## License Boundary
+## Source Terms
 
-Code is released under the MIT License. Reports and project documentation are released under CC BY 4.0 unless a file states otherwise.
+The code is MIT licensed. No blanket license is asserted over combined derived data. xBD/xView2, WorldPop, OpenStreetMap/ohsome, CDC SVI, OpenFEMA, and Census-derived artifacts remain subject to their upstream terms and attribution requirements.
 
-The downloadable data artifacts combine derived information from xBD/xView2, WorldPop, OpenStreetMap, OpenFEMA NFIP Claims v2, and US Census tract boundaries. Their use remains subject to the upstream data terms. For source-specific notes, see `reports/data_access_license_notes.md`.
+See `reports/data_access_license_notes.md` and `data/manifests/auxiliary_data_sources.csv` for the source-by-source ledger.

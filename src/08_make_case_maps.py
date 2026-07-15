@@ -232,7 +232,7 @@ def make_figure(
         for col_idx, (value_col, col_title) in enumerate(
             [
                 ("damage_norm", "damage-only"),
-                ("mean_need_score", "need-aware"),
+                ("mean_need_score", "multi-source"),
             ]
         ):
             ax = axes[row_idx, col_idx]
@@ -281,7 +281,7 @@ def make_figure(
     )
     cbar.set_label("Event-normalized score (0-1)")
     axes[0, 0].legend(
-        handles=[Patch(facecolor="white", edgecolor=ROSE, linewidth=1.2, hatch="///", label="Stable mismatch")],
+        handles=[Patch(facecolor="white", edgecolor=ROSE, linewidth=1.2, hatch="///", label="Scenario-consensus disagreement")],
         loc="lower right",
         fontsize=6.3,
         handlelength=1.7,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared deterministic ranking helpers for Stage 2 evidence experiments."""
+"""Shared deterministic ranking helpers for evidence-hardening experiments."""
 
 from __future__ import annotations
 
@@ -49,7 +49,7 @@ def load_need_scenarios(path: Path) -> list[dict]:
             }
         )
     if not scenarios:
-        raise ValueError("No active need-aware scenarios found")
+        raise ValueError("No active multi-source priority scenarios found")
     return scenarios
 
 
@@ -147,4 +147,3 @@ def require_finite(frame: pd.DataFrame, columns: list[str], context: str) -> Non
     values = frame[columns].apply(pd.to_numeric, errors="coerce").to_numpy(dtype=float)
     if not np.isfinite(values).all():
         raise ValueError(f"Non-finite values found in {context}: {columns}")
-

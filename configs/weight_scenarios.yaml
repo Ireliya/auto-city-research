@@ -1,54 +1,73 @@
-version: "0.2"
-created_at: "2026-07-10 22:56:50 CST"
-updated_at: "2026-07-11 00:55:00 CST"
-status: "active_submission_scenarios"
+version: "1.0"
+status: "final_frozen_scenarios"
 
-principle:
-  - "Do not submit a single arbitrary need-weight vector as the only result."
-  - "Use pre-registered weight scenarios and sensitivity analysis."
-  - "Report where priority conflicts are stable across plausible weights."
+principles:
+  - "Damage severity is the comparison baseline, not a complete recovery-need label."
+  - "Multi-source scores are transparent priority scenarios, not observed ground truth."
+  - "No single weight vector is presented as the uniquely correct policy."
+  - "Final claims depend on fixed sensitivity and consensus gates."
 
-planned_components:
-  damage: "building-level physical damage from xBD labels"
-  population: "WorldPop 1km event-year population exposure proxy"
-  accessibility: "inverse OSM drive-road density as access-need proxy"
-  critical_services: "nearest OSM critical facility and inverse facility count"
-  urban_capacity: "urban form or nighttime light proxy if available"
-
-indicator_definitions:
-  damage_norm: "event-wise min-max normalization of damage_index_D"
-  population_norm: "event-wise min-max normalization of log1p(worldpop_population)"
-  accessibility_need_norm: "event-wise min-max normalization of inverse log1p(road_density_m_per_km2)"
-  service_need_norm: "0.5 * nearest_facility_norm + 0.5 * inverse log1p(facility_count)_norm"
+components:
+  damage_norm: "event-wise min-max normalized xBD damage indicator"
+  population_norm: "event-wise min-max normalized log1p(WorldPop population)"
+  accessibility_need_norm: "event-wise min-max normalized inverse log1p(OSM road density)"
+  service_need_norm: >-
+    0.5 times normalized nearest-facility distance plus 0.5 times normalized
+    inverse log1p(critical-facility count)
 
 active_scenarios:
   - name: "damage_only_baseline"
+    public_label: "Damage only"
     role: "baseline"
     weights:
       damage: 1.0
+
   - name: "balanced_need"
-    role: "main"
+    public_label: "Multi-source: balanced"
+    role: "main_scenario"
     weights:
       damage_norm: 0.40
       population_norm: 0.35
       accessibility_need_norm: 0.15
       service_need_norm: 0.10
+
   - name: "population_sensitive"
-    role: "sensitivity"
+    public_label: "Multi-source: population"
+    role: "sensitivity_scenario"
     weights:
       damage_norm: 0.25
       population_norm: 0.55
       accessibility_need_norm: 0.10
       service_need_norm: 0.10
+
   - name: "accessibility_sensitive"
-    role: "sensitivity"
+    public_label: "Multi-source: accessibility"
+    role: "sensitivity_scenario"
     weights:
       damage_norm: 0.25
       population_norm: 0.30
       accessibility_need_norm: 0.30
       service_need_norm: 0.15
 
-mismatch_definitions:
+selection:
   top_share: 0.20
-  stable_mismatch: "cell is in the top 20% of need-aware priority but outside the top 20% of damage-only priority in at least two active need scenarios"
-  underestimation_gap: "need_priority_percentile - damage_priority_percentile"
+  exact_top_k: "ceil(event_cell_count * top_share)"
+  scenario_consensus: >-
+    A cell enters the provisional disagreement set when it is selected by at
+    least two multi-source scenarios and is not selected by the damage-only baseline.
+
+weight_uncertainty:
+  seed: 20260715
+  unconstrained_draws: 10000
+  unconstrained_distribution: "Dirichlet(1,1,1,1)"
+  policy_bounded_draws: 10000
+  policy_bounds:
+    damage: [0.20, 0.50]
+    population_min: 0.05
+    accessibility_min: 0.05
+    service_min: 0.05
+
+compatibility_note: >-
+  Earlier internal column names containing 'need' remain unchanged so released
+  schemas and hashes stay reproducible. Public text and figure labels use
+  'multi-source priority scenario' and 'priority disagreement'.

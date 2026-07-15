@@ -18,7 +18,7 @@ DEFAULT_ALLOW_PATTERNS = [
     "reports/pdf/**",
     "records/evidence_index.csv",
     "records/materials_registry.csv",
-    "records/stage2_evidence_hardening_20260715-1057.md",
+    "records/final_evidence_freeze_20260715-1612.md",
     "MANIFEST.csv",
 ]
 

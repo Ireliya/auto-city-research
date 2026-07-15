@@ -1,133 +1,121 @@
-# Data Access and License Notes
+# Data Access, Attribution, and Redistribution Notes
 
-Team: **auto city research**
+Team: **Auto-City-Research**  
+Code: [github.com/Ireliya/auto-city-research](https://github.com/Ireliya/auto-city-research)  
+Data: [huggingface.co/datasets/Ireliya/auto-city-research](https://huggingface.co/datasets/Ireliya/auto-city-research)
 
-Code: [github.com/Ireliya/auto-city-research](https://github.com/Ireliya/auto-city-research)
+This document is a research-artifact inventory, not legal advice. It records source pages, attribution requirements, privacy handling, and the conservative redistribution boundary used by the project. No project-level license overrides the terms attached to an upstream source.
 
-Reproducibility data: [huggingface.co/datasets/Ireliya/auto-city-research](https://huggingface.co/datasets/Ireliya/auto-city-research)
+## 1. Release Policy
 
-This file is not legal advice. It is a reproducibility and submission-hygiene note that explains how the package uses public and competition data without redistributing large raw imagery or raw rasters.
+The competition package and public dataset include source code, fixed configurations, privacy-safe derived tables, selected derived geospatial layers, figures, reports, logs, and manifests. They do not include raw satellite imagery, raw source rasters, bulk map extracts, or individual assistance/claim records.
 
-## Summary
+The Hugging Face repository must use a per-source data card rather than presenting every file under one blanket license. Code licensing is handled separately in the GitHub repository.
 
-The submission package includes reproducible code, derived CSV/GeoJSON tables, figures, logs, and evidence records. It intentionally does not include raw xBD satellite imagery, raw WorldPop rasters, raw OSM extracts/caches, raw GHSL rasters, or individual NFIP claim rows. Reviewers can audit the workflow from the included privacy-safe derived products and scripts, while raw-source access remains governed by each source provider's terms.
+## 2. Source Ledger
 
-## Dataset Ledger
+| Source | Provider page | Applicable note | Public artifact | Not redistributed |
+| --- | --- | --- | --- | --- |
+| xView2/xBD | [CMU SEI xView2 project](https://www.sei.cmu.edu/projects/xview-2-challenge/) | SEI describes xBD as public-use Creative Commons data; this project conservatively treats xView-derived material as CC BY-NC-SA 4.0 and preserves attribution | Aggregated labels, grid tables, figures, and code | Raw pre/post-disaster satellite images and full source archive |
+| WorldPop | [WorldPop FAQ](https://www.worldpop.org/faq/) | CC BY 4.0; attribution required; population surfaces are modeled estimates | Population-enriched grid values and audit summaries | Raw 100 m and 1 km GeoTIFFs |
+| OpenStreetMap | [OSM copyright and license](https://www.openstreetmap.org/copyright) | ODbL 1.0; attribution to OpenStreetMap contributors; share-alike conditions may apply to derivative databases | Derived road, facility, and building metrics with attribution and reproducible extraction code | Bulk extracts, OSMnx caches, and tile caches |
+| ohsome API | [ohsome API documentation](https://docs.ohsome.org/ohsome-api/stable/endpoints.html) | Historical extraction retains `© OpenStreetMap contributors` attribution and OSM licensing | Historical coverage summaries, grid metrics, and fetch log | Raw full-history responses beyond the study outputs |
+| CDC/ATSDR SVI 2016 | [SVI documentation](https://www.atsdr.cdc.gov/place-health/php/svi/index.html) | US government public-health dataset; cite CDC/ATSDR and the release year | Harvey-intersecting tract scores and bootstrap metrics | Unused national/state source files |
+| OpenFEMA NFIP Claims v2 | [NFIP claims dataset](https://www.fema.gov/openfema-data-page/fima-nfip-redacted-claims-v2) | Public redacted OpenFEMA data subject to OpenFEMA terms and citation requirements | Sums by intersecting Census tract and bootstrap metrics | Individual claim rows and statewide runtime cache |
+| OpenFEMA RI-IHP v2 | [RI-IHP dataset](https://www.fema.gov/openfema-data-page/registration-intake-and-individuals-household-program-ri-ihp-v2) | Aggregated non-PII OpenFEMA data subject to OpenFEMA terms and citation requirements | One-table ZIP aggregates and bootstrap metrics | Source records outside the study aggregation |
+| Census TIGER/Line | [US Census TIGER/Line](https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html) | US government work; Census requests source citation and supplies accuracy disclaimers | Joined geographic identifiers and result aggregates | Full downloaded geometry archives |
+| CARTO basemap | [CARTO attribution](https://carto.com/attribution/) | Rendered map credits both CARTO and OpenStreetMap contributors | Attributed static case-map figure | Raster tile cache |
 
-| Source | Role | Access or source page | License / use note | Included in package | Boundary |
-| --- | --- | --- | --- | --- | --- |
-| xView2 / xBD | Building damage labels, building geometry, event metadata | CMU SEI xView2 project page and xBD access page | SEI states that xBD is available for public use under a Creative Commons license; the project treats raw imagery as source data, not redistributable package content | Derived label tables, grid summaries, figures, code | Raw satellite images and full raw label archive are not copied into the submission package |
-| WorldPop | Population exposure proxy | WorldPop website and catalog access endpoints | WorldPop datasets are treated as attribution-required open population data; the implemented workflow uses 1 km event-year rasters as an exposure proxy | Derived population columns joined to 500 m grid | Raw raster files are not redistributed |
-| OpenStreetMap roads and amenities | Road accessibility and critical-facility context | OpenStreetMap data via OSMnx/Overpass-compatible retrieval | OSM data are open data under the Open Database License; package includes attribution and derived tables | Derived road/facility metrics and selected derived geospatial outputs | Raw OSM caches and full extracts are not redistributed |
-| OpenStreetMap buildings | Independent building-form robustness | OpenStreetMap building footprints via OSMnx/Overpass-compatible retrieval | Same OSM attribution and ODbL boundary as roads/amenities | Derived OSM building-form tables and figures | Raw OSM building cache is not redistributed |
-| CARTO/OSM basemap | Geographic context for Figure 4 | CARTO raster basemap using OpenStreetMap data | Figure carries attribution to both OpenStreetMap contributors and CARTO | Rendered Figure 4 only | Raster tile cache is not redistributed |
-| OpenFEMA NFIP Claims v2 | Harvey insured-property external boundary test | FEMA OpenFEMA data page and API | Public redacted claims data; project applies additional aggregation and data minimization | Tract aggregates, metrics, bootstrap summaries, and code | Individual claims and the all-Texas runtime aggregate cache are not published |
-| Census TIGER/Line 2017 tracts | NFIP/xBD tract association | US Census Bureau 2017 TIGER/Line tract source | US federal geographic data with source attribution | Derived tract-level result table only | Runtime source polygons are not repackaged |
-| GHSL | Optional built-up robustness route | European Commission / JRC GHSL download pages | GHSL is open/free with attribution; reuse requires source acknowledgement | Script and failed-source record only | No GHSL raster or result is claimed in the current submission |
-| VIIRS | Optional economic-activity extension | EOG / VIIRS product pages | Not used in current results | Not included | Future extension only |
+## 3. Source-Specific Handling
 
-## Source-Specific Notes
+### xView2/xBD
 
-### xView2 / xBD
+xBD supplies post-disaster building polygons, ordinal damage labels, and event metadata. The public release uses derived annotation tables and grid aggregates, but deliberately excludes the satellite pixels. Every report cites the xBD paper and the CMU SEI project page. Any downstream user should obtain the source dataset through its official access route and follow the source terms.
 
-xBD is the physical-damage foundation of the project. The current workflow uses post-disaster labels to build building-level and 500 m grid-level damage outputs. The submission package includes derived tables and scripts, but it does not include raw satellite imagery. This keeps the package lightweight and avoids redistributing large source imagery.
-
-Attribution path:
-
-- English paper bibliography: `reports/references.bib`
-- Data description: `reports/data_description_reproducibility.md`
-- Derived data: `data/derived/xbd_core_v1/` and `data/derived/xbd_damage_grid_v1/`
+Because the current official SEI summary states only “a Creative Commons license” without naming a version on that page, this project applies the more restrictive CC BY-NC-SA 4.0 treatment associated with the xView challenge family. The public data card must not relabel xBD-derived content as unrestricted or purely MIT-licensed.
 
 ### WorldPop
 
-WorldPop is used only as a population exposure proxy. The implemented workflow uses 1 km population rasters joined to the 500 m analysis grid. The package includes population-derived columns and fetch logs, not raw population rasters.
+WorldPop states that its datasets are licensed under CC BY 4.0 and may be reused and redistributed with clear attribution. Even so, raw rasters are omitted to keep the competition package small and to make product/version selection explicit. Released tables contain only values spatially joined to the study grids, together with product identifiers and fetch manifests.
 
-Attribution path:
+Required attribution: WorldPop, University of Southampton, with the product page and release metadata identified in the data card and paper bibliography.
 
-- English paper bibliography: `reports/references.bib`
-- Data description: `reports/data_description_reproducibility.md`
-- Derived data: `data/derived/worldpop_context_v1/`
+### OpenStreetMap and ohsome
 
-### OpenStreetMap
+Current OSM features and pre-event ohsome snapshots are attributed to `OpenStreetMap contributors`. The project links to the ODbL and releases extraction code, filters, timestamps, derived tables, and manifests. Static maps carry visible OSM/CARTO attribution.
 
-OpenStreetMap provides current roads, amenities, and building footprints. OSM is a present-day open map snapshot, so the project records time-alignment and mapping-completeness limitations. The package includes derived tables, figures, and relevant code, not raw OSM caches or bulk extracts.
+The project does not claim that an aggregated feature table escapes ODbL obligations. Public data documentation keeps OSM-derived files identifiable so downstream users can comply with attribution and share-alike requirements where applicable.
 
-Attribution path:
+### CDC/ATSDR SVI
 
-- English paper bibliography: `reports/references.bib`
-- Data description: `reports/data_description_reproducibility.md`
-- Derived data: `data/derived/osm_context_v1/` and `data/derived/osm_building_form_v1/`
+SVI is used as a pre-event social-vulnerability proxy for 149 Harvey-intersecting tracts. Only the fields needed for the audit and the resulting rank metrics are released. The report cites CDC/ATSDR and does not interpret SVI as realized post-disaster unmet need.
 
-Figure 4 uses a CARTO-hosted basemap built from OpenStreetMap data. The rendered figure visibly states `(c) OpenStreetMap contributors, (c) CARTO`; no tile cache is included in the public dataset or submission package.
+### OpenFEMA NFIP Claims
 
-### OpenFEMA NFIP and Census Tracts
+The NFIP acquisition script reads public redacted records, filters the Harvey period and Texas scope, and aggregates immediately to Census tract. The public output contains 149 intersecting tract rows covering 10,134 claims and aggregate monetary fields. It never writes or releases individual claim rows.
 
-The external validation downloads redacted NFIP claim records in memory for Texas during the Harvey analysis period, immediately aggregates them by the provided Census tract identifier, and writes only tract-level sums. The public release contains only the 149 aggregate tracts that intersect the xBD Harvey footprint, plus model metrics and bootstrap summaries. Individual claim rows are never written by the script. The 2017 tract geometry is attributed to the US Census Bureau; an ArcGIS mirror is used as a network fallback and its provenance is recorded in the run manifest.
+The output is an insured-property-loss proxy. Flood-insurance coverage, reporting, policy limits, and tenure affect interpretation.
 
-### GHSL
+### OpenFEMA RI-IHP
 
-GHSL is not part of the current result claims. A script is included as an optional robustness path, and the recorded attempt explains that official JRC/SEDAC source downloads were unavailable during the project run. Because no GHSL raster was successfully joined, no GHSL-derived table or figure is claimed.
+RI-IHP is drawn from one FEMA table and aggregated by ZIP to avoid combining owner/renter tables in a way that could double-count registrations. The released study output contains 41 ZIP aggregates and reports coverage thresholds and sample sizes. It remains subject to registration, eligibility, and administrative-process selection.
 
-Attribution path:
+### Census TIGER/Line
 
-- Optional script: `src/16_join_ghsl_built_surface.py`
-- Attempt record: `records/ghsl_download_attempt_20260711-0330.md`
+Census boundaries provide spatial support for tract and ZIP association. US Census technical documentation states that US government works are not copyright-protected and asks users to cite the Census Bureau. The source also disclaims positional and attribute accuracy and notes that statistical boundaries are not legal land descriptions.
 
-## Redistribution Boundary
+## 4. Included Files
 
-Included:
+- derived CSV and selected GeoJSON outputs;
+- source and result manifests with checksums;
+- figures in SVG, PDF, RGB PNG, and grayscale-check PNG;
+- report PDFs and Markdown sources;
+- scripts and fixed configurations;
+- research, command, and AI collaboration logs;
+- evidence index and package audit reports.
 
-- Derived CSV tables
-- Derived GeoJSON layers
-- Result figures
-- Report PDFs and Markdown sources
-- Scripts
-- Configs
-- Logs and evidence records
-- Package manifest and audit reports
+## 5. Excluded Files
 
-Not included:
+- raw xBD satellite images and the full xBD archive;
+- raw WorldPop GeoTIFFs;
+- bulk OSM extracts, OSMnx caches, and raw ohsome response caches;
+- CARTO or OSM raster tiles;
+- individual NFIP claims or person/household assistance records;
+- all-Texas or national intermediate caches not needed for aggregate audit;
+- credentials, access tokens, IP addresses, passwords, private absolute paths, and shell history;
+- temporary render directories and local environment files.
 
-- Raw xBD satellite imagery
-- Full raw xBD archive
-- Raw WorldPop rasters
-- OSMnx cache files
-- Raw OSM extracts
-- GHSL rasters
-- Individual NFIP claim rows
-- The all-Texas NFIP tract checkpoint under `data/cache/`
-- CARTO/OSM raster tile caches
-- Remote server paths, IP addresses, passwords, or other credentials
+## 6. Public Dataset Card Requirements
 
-## Reviewer Reproduction Path
+The Hugging Face data card must state:
 
-Reviewers can audit the current result without raw imagery by following:
+1. project title and team name `Auto-City-Research`;
+2. exact GitHub repository and fixed code revision;
+3. per-source licenses and attribution links;
+4. that raw xBD imagery and raw WorldPop rasters are absent;
+5. that NFIP and FEMA assistance outputs are aggregated and non-person-level;
+6. that the data support an audit, not operational emergency allocation;
+7. the four final candidates and the absence of historical OSM support; and
+8. a machine-readable manifest with byte counts and SHA-256 hashes.
 
-1. `README_FIRST.md`
-2. `submission/JUDGE_QUICK_START.md`
-3. `reports/pdf/data_description_reproducibility.pdf`
-4. `reports/pdf/paper_en.pdf`
-5. `src/`
-6. `configs/`
-7. `data/derived/`
-8. `records/evidence_index.csv`
+## 7. Reviewer Reproduction Route
 
-The public core can be reproduced with `python scripts/reproduce_core.py`, which downloads a fixed Hugging Face revision, verifies hashes, reruns the core analysis, and checks the `67/109` invariants. Full raw-source reproduction additionally requires access to the original xBD archive and public geospatial endpoints; the package documents those routes without embedding large source data.
+Reviewers can reproduce the deterministic evidence without raw imagery:
 
-## Known Limitations
+```bash
+git clone https://github.com/Ireliya/auto-city-research.git
+cd auto-city-research
+python scripts/reproduce_core.py --profile final
+```
 
-- OSM roads, amenities, and building footprints are current snapshots and may contain edits after the disaster dates.
-- WorldPop exposure is used at 1 km resolution and cannot resolve all within-cell variation in 500 m analysis cells.
-- GHSL is scripted but not claimed because source downloads were unavailable during the recorded attempt.
-- NFIP is an insured-property loss proxy with coverage and reporting selection; it is not unmet-need ground truth.
-- Figure 4 depends on an online CARTO/OSM tile endpoint when regenerated, but the rendered attributed figure is included.
-- The package is a research audit artifact, not an operational emergency management data release.
+The command downloads the fixed Hugging Face revision, validates `MANIFEST.csv`, recomputes the core rankings and consensus, and checks exact candidate keys. Full source reconstruction additionally requires official source access and live public APIs.
 
-## Verification
+## 8. Validity and Compliance Checks
 
-The final audit should confirm:
+Before public release and competition upload:
 
-- The data-license note is present in the package.
-- Raw satellite imagery and raw rasters are absent from the package.
-- Package path privacy and secret scans pass.
-- The manifest includes this file and its exported PDF.
+- verify every derived source is identified in the data card;
+- verify OSM attribution is visible on maps and present in documentation;
+- verify no source is assigned a more permissive license than its provider permits;
+- scan tracked files and the ZIP for secrets, private paths, raw imagery, rasters, caches, and person-level records; and
+- validate all manifest hashes and preserve the final public revisions and package SHA-256 with the upload receipt.

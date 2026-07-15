@@ -57,17 +57,24 @@ def download_file(url: str, out_path: Path) -> dict:
         return {"status": "cached", "bytes": out_path.stat().st_size}
 
     tmp_path = out_path.with_suffix(out_path.suffix + ".part")
-    if tmp_path.exists():
-        tmp_path.unlink()
-
-    with requests.get(url, stream=True, timeout=60) as response:
+    downloaded = tmp_path.stat().st_size if tmp_path.exists() else 0
+    headers = {"Range": f"bytes={downloaded}-"} if downloaded else {}
+    with requests.get(url, headers=headers, stream=True, timeout=60) as response:
         response.raise_for_status()
-        with tmp_path.open("wb") as f:
+        resumed = downloaded > 0 and response.status_code == 206
+        mode = "ab" if resumed else "wb"
+        with tmp_path.open(mode) as f:
             for chunk in response.iter_content(chunk_size=1024 * 1024):
                 if chunk:
                     f.write(chunk)
+    if expected_size and tmp_path.stat().st_size != expected_size:
+        raise IOError(
+            f"Incomplete download for {out_path.name}: "
+            f"expected {expected_size} bytes, got {tmp_path.stat().st_size}"
+        )
     shutil.move(tmp_path, out_path)
-    return {"status": "downloaded", "bytes": out_path.stat().st_size}
+    status = "resumed_download" if resumed else "downloaded"
+    return {"status": status, "bytes": out_path.stat().st_size}
 
 
 def clip_event_raster(src_path: Path, event_grid: gpd.GeoDataFrame, clip_path: Path) -> dict:

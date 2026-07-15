@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate Figures 1-10 from fixed derived tables without rerunning experiments."""
+"""Regenerate Figures 1-12 from fixed derived tables without rerunning experiments."""
 
 from __future__ import annotations
 
@@ -54,23 +54,24 @@ def main() -> None:
     baseline = load_script("18_run_baseline_weight_robustness.py", "project_figures_18")
     multiscale = load_script("19_run_multiscale_robustness.py", "project_figures_19")
     nfip = load_script("20_validate_harvey_nfip.py", "project_figures_20")
+    final_evidence = load_script("25_make_final_evidence_figures.py", "project_figures_25")
 
     figures.setup_style()
     figures.figure_event_summary(
-        pd.read_csv(PROJECT_ROOT / "data/derived/priority_mismatch_v1/event_mismatch_summary.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/priority_mismatch_100m_v1/event_mismatch_summary.csv"),
         args.figure_dir,
     )
     figures.figure_scenario_heatmaps(
-        pd.read_csv(PROJECT_ROOT / "data/derived/priority_mismatch_v1/scenario_rank_metrics.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/priority_mismatch_100m_v1/scenario_rank_metrics.csv"),
         args.figure_dir,
     )
     figures.figure_driver_profile(
-        pd.read_csv(PROJECT_ROOT / "data/derived/mismatch_drivers_v1/mismatch_driver_profile.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/mismatch_drivers_100m_v1/mismatch_driver_profile.csv"),
         args.figure_dir,
     )
 
     maps.make_figure(
-        pd.read_csv(PROJECT_ROOT / "data/derived/priority_mismatch_v1/priority_mismatch_grid_500m.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/priority_mismatch_100m_v1/priority_mismatch_grid_500m.csv"),
         args.figure_dir,
         "fig4_case_map_mismatch",
         PROJECT_ROOT / "data/cache/contextily",
@@ -79,36 +80,46 @@ def main() -> None:
 
     robustness.setup_style()
     robustness.make_figure(
-        pd.read_csv(PROJECT_ROOT / "data/derived/robustness_v1/threshold_sensitivity.csv"),
-        pd.read_csv(PROJECT_ROOT / "data/derived/robustness_v1/scenario_stability_top20.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/robustness_100m_v1/threshold_sensitivity.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/robustness_100m_v1/scenario_stability_top20.csv"),
         args.figure_dir,
     )
     strict.make_figure(
-        pd.read_csv(PROJECT_ROOT / "data/derived/strict_budget_v1/strict_budget_event_summary.csv"),
-        pd.read_csv(PROJECT_ROOT / "data/derived/priority_mismatch_v1/event_mismatch_summary.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/strict_budget_100m_v1/strict_budget_event_summary.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/priority_mismatch_100m_v1/event_mismatch_summary.csv"),
         args.figure_dir,
     )
     osm_form.make_figure(
-        pd.read_csv(PROJECT_ROOT / "data/derived/osm_building_form_v1/osm_building_urban_form_profile.csv"),
-        pd.read_csv(PROJECT_ROOT / "data/derived/osm_building_form_v1/osm_building_xbd_area_correlation.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/osm_building_form_100m_v1/osm_building_urban_form_profile.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/osm_building_form_100m_v1/osm_building_xbd_area_correlation.csv"),
         args.figure_dir,
     )
     baseline.make_figure(
-        pd.read_csv(PROJECT_ROOT / "data/derived/evidence_hardening_v1/baseline_event_summary.csv"),
-        pd.read_csv(PROJECT_ROOT / "data/derived/evidence_hardening_v1/weight_uncertainty_event_summary.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/evidence_hardening_100m_v1/baseline_event_summary.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/evidence_hardening_100m_v1/weight_uncertainty_event_summary.csv"),
         args.figure_dir,
     )
     multiscale.make_figure(
-        pd.read_csv(PROJECT_ROOT / "data/derived/multiscale_v1/multiscale_event_summary.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/multiscale_100m_v1/multiscale_event_summary.csv"),
         args.figure_dir,
     )
     nfip.make_figure(
         pd.read_csv(PROJECT_ROOT / "data/derived/harvey_external_validation_v1/harvey_external_validation_metrics.csv"),
         args.figure_dir,
     )
+    final_evidence.make_consensus_figure(
+        pd.read_csv(PROJECT_ROOT / "data/derived/final_consensus_v1/final_consensus_all_cells.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/historical_osm_v1/historical_osm_event_summary.csv"),
+        args.figure_dir,
+    )
+    final_evidence.make_external_proxy_figure(
+        pd.read_csv(PROJECT_ROOT / "data/derived/external_proxies_v1/external_proxy_rank_metrics.csv"),
+        pd.read_csv(PROJECT_ROOT / "data/derived/harvey_external_validation_v1/harvey_external_validation_metrics.csv"),
+        args.figure_dir,
+    )
 
     expected = []
-    for index in range(1, 11):
+    for index in range(1, 13):
         matches = list(args.figure_dir.glob(f"fig{index}_*.svg"))
         if len(matches) != 1:
             raise RuntimeError(f"Expected one editable SVG for Figure {index}, found {len(matches)}")

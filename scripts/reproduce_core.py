@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Download, verify, and recompute the offline core evidence in one command."""
+"""Download, verify, and recompute the offline evidence in one command."""
 
 from __future__ import annotations
 
@@ -22,6 +22,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--profile",
+        choices=["core", "final"],
+        default="final",
+        help="Use 'final' for the two-resolution consensus audit or 'core' for the legacy check.",
+    )
     parser.add_argument("--skip-download", action="store_true")
     parser.add_argument("--revision", default="", help="Override configs/public_release.yaml")
     parser.add_argument("--work-dir", type=Path, default=Path("data/reproduced/core_v1"))
@@ -46,7 +52,7 @@ def verify_download_manifest() -> int:
     allowed_exact = {
         "records/evidence_index.csv",
         "records/materials_registry.csv",
-        "records/stage2_evidence_hardening_20260715-1057.md",
+        "records/final_evidence_freeze_20260715-1612.md",
     }
     with manifest_path.open(newline="", encoding="utf-8") as handle:
         for row in csv.DictReader(handle):
@@ -96,7 +102,7 @@ def assert_recomputed(work_dir: Path) -> dict[str, int]:
         "strict_top20_stable_mismatch_total": int(
             strict.loc[strict["top_share"].round(2) == 0.20, "strict_stable_mismatch_count"].sum()
         ),
-        "stage2_current_baseline_top20_total": int(
+        "comparison_baseline_top20_total": int(
             evidence.loc[
                 (evidence["baseline"] == "damage_index_D")
                 & (evidence["top_share"].round(2) == 0.20),
@@ -113,12 +119,43 @@ def assert_recomputed(work_dir: Path) -> dict[str, int]:
     expected = {
         "primary_stable_mismatch_total": 67,
         "strict_top20_stable_mismatch_total": 109,
-        "stage2_current_baseline_top20_total": 109,
+        "comparison_baseline_top20_total": 109,
         "multiscale_500m_top20_total": 109,
     }
     if counts != expected:
         raise AssertionError(f"Recomputed headline mismatch: expected {expected}, got {counts}")
     return counts
+
+
+def assert_final_recomputed(work_dir: Path) -> dict[str, object]:
+    published_dir = ROOT / "data/derived/final_consensus_v1"
+    reproduced_dir = work_dir / "final_consensus"
+    published = pd.read_csv(published_dir / "final_consensus_candidates.csv")
+    reproduced = pd.read_csv(reproduced_dir / "final_consensus_candidates.csv")
+    keys = ["event", "cell_id"]
+    published_keys = set(map(tuple, published[keys].astype(str).to_numpy()))
+    reproduced_keys = set(map(tuple, reproduced[keys].astype(str).to_numpy()))
+    if published_keys != reproduced_keys:
+        missing = sorted(published_keys - reproduced_keys)[:20]
+        unexpected = sorted(reproduced_keys - published_keys)[:20]
+        raise AssertionError(
+            "Final consensus candidate mismatch: "
+            f"missing={missing}, unexpected={unexpected}"
+        )
+    published_events = pd.read_csv(published_dir / "final_consensus_event_summary.csv")
+    reproduced_events = pd.read_csv(reproduced_dir / "final_consensus_event_summary.csv")
+    count_column = "high_confidence_disagreement_cells"
+    expected_counts = dict(zip(published_events["event"], published_events[count_column]))
+    actual_counts = dict(zip(reproduced_events["event"], reproduced_events[count_column]))
+    if expected_counts != actual_counts:
+        raise AssertionError(
+            f"Final event counts changed: expected={expected_counts}, actual={actual_counts}"
+        )
+    return {
+        "high_confidence_candidates": len(reproduced_keys),
+        "candidate_keys_match_release": True,
+        "event_counts": {key: int(value) for key, value in actual_counts.items()},
+    }
 
 
 def main() -> None:
@@ -258,18 +295,122 @@ def main() -> None:
         )
     )
     counts = assert_recomputed(work_dir)
+    final_counts: dict[str, object] | None = None
+    if args.profile == "final":
+        priority_100m_dir = work_dir / "priority_100m"
+        evidence_100m_dir = work_dir / "evidence_100m"
+        commands.append(
+            run(
+                [
+                    sys.executable,
+                    "src/05_analyze_priority_mismatch.py",
+                    "--input-grid",
+                    "data/derived/worldpop_context_100m_v1/damage_osm_worldpop_grid_500m.geojson",
+                    "--weights-config",
+                    "configs/weight_scenarios.yaml",
+                    "--out-dir",
+                    str(priority_100m_dir),
+                ]
+            )
+        )
+        commands.append(
+            run(
+                [
+                    sys.executable,
+                    "src/18_run_baseline_weight_robustness.py",
+                    "--priority-grid",
+                    str(priority_100m_dir / "priority_mismatch_grid_500m.csv"),
+                    "--weights-config",
+                    "configs/weight_scenarios.yaml",
+                    "--experiment-config",
+                    "configs/evidence_hardening.yaml",
+                    "--out-dir",
+                    str(evidence_100m_dir),
+                    "--figure-dir",
+                    str(figure_dir),
+                ]
+            )
+        )
+        multiscale_100m_dir = work_dir / "multiscale_100m"
+        for cell_m in (250, 500, 1000):
+            source = ROOT / "data/derived/multiscale_100m_v1" / f"worldpop_{cell_m}m"
+            target = multiscale_100m_dir / f"worldpop_{cell_m}m"
+            if not source.exists():
+                raise FileNotFoundError(f"Missing released 100m multiscale input: {source}")
+            shutil.copytree(source, target, dirs_exist_ok=True)
+        commands.append(
+            run(
+                [
+                    sys.executable,
+                    "src/19_run_multiscale_robustness.py",
+                    "--skip-preparation",
+                    "--worldpop-resolution",
+                    "100m",
+                    "--out-dir",
+                    str(multiscale_100m_dir),
+                    "--figure-dir",
+                    str(figure_dir),
+                ]
+            )
+        )
+        consensus_dir = work_dir / "final_consensus"
+        commands.append(
+            run(
+                [
+                    sys.executable,
+                    "src/24_build_final_consensus.py",
+                    "--priority-1km",
+                    str(priority_dir / "priority_mismatch_grid_500m.geojson"),
+                    "--priority-100m",
+                    str(priority_100m_dir / "priority_mismatch_grid_500m.geojson"),
+                    "--evidence-1km",
+                    str(work_dir / "evidence"),
+                    "--evidence-100m",
+                    str(evidence_100m_dir),
+                    "--multiscale-1km",
+                    str(multiscale_dir),
+                    "--multiscale-100m",
+                    str(multiscale_100m_dir),
+                    "--historical-osm",
+                    "data/derived/historical_osm_v1",
+                    "--out-dir",
+                    str(consensus_dir),
+                ]
+            )
+        )
+        final_counts = assert_final_recomputed(work_dir)
+        commands.append(
+            run(
+                [
+                    sys.executable,
+                    "src/25_make_final_evidence_figures.py",
+                    "--consensus-dir",
+                    str(consensus_dir),
+                    "--historical-osm-dir",
+                    "data/derived/historical_osm_v1",
+                    "--external-proxy-dir",
+                    "data/derived/external_proxies_v1",
+                    "--nfip-dir",
+                    "data/derived/harvey_external_validation_v1",
+                    "--figure-dir",
+                    str(figure_dir),
+                ]
+            )
+        )
     report = {
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "huggingface_dataset": release["huggingface_dataset"],
         "huggingface_revision": revision,
+        "profile": args.profile,
         "manifest_files_checked": manifest_files_checked,
         "headline_counts": counts,
+        "final_consensus": final_counts,
         "commands": commands,
-        "network_dependent_steps_excluded": ["03", "04", "17", "20"],
+        "network_dependent_steps_excluded": ["03", "04", "17", "20", "22", "23"],
     }
     report_path = work_dir / "reproduction_report.json"
     report_path.write_text(json.dumps(report, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
-    print(f"core reproduction OK: {report_path}")
+    print(f"{args.profile} reproduction OK: {report_path}")
 
 
 if __name__ == "__main__":

@@ -1,8 +1,10 @@
-dataset,role,source_url,status,notes
-xView2/xBD,physical damage,https://www.sei.cmu.edu/projects/xview-2-challenge/,available_on_remote,Remote archive inventoried; derived label and grid tables included; raw imagery not redistributed
-WorldPop,population exposure,https://www.worldpop.org/,joined_complete_1km,Event-year 1km population rasters joined to 500m grid; raw rasters not redistributed
-OpenStreetMap roads,accessibility,https://www.openstreetmap.org/,joined_complete_current_snapshot,Current OSM road metrics joined; historical extracts remain optional future robustness
-OpenStreetMap amenities,critical services,https://www.openstreetmap.org/,joined_complete_current_snapshot,Current OSM facility metrics joined; current-snapshot limitation recorded
-OpenStreetMap buildings,independent urban form,https://www.openstreetmap.org/,joined_complete_current_snapshot,Used as OSM building footprint robustness layer; raw OSM cache not redistributed
-GHSL built-up / settlement,urban form,https://human-settlement.emergency.copernicus.eu/datasets.php,script_ready_source_unavailable,Optional robustness route; no GHSL raster or result claimed in current submission
-VIIRS nighttime lights,economic activity proxy,https://eogdata.mines.edu/products/vnl/,optional_after_current_submission,Not used in current results
+source,role,official_url,status,release_boundary
+xView2/xBD,physical damage,https://www.sei.cmu.edu/projects/xview-2-challenge/,complete_four_events,Derived labels and grid tables only; raw imagery excluded
+WorldPop R2025A 100m,primary population exposure,https://hub.worldpop.org/,complete_four_events,Derived grid values only; raw rasters excluded
+WorldPop Global1 1km,population resolution sensitivity,https://hub.worldpop.org/Global1_2000-2020,complete_four_events,Derived grid values only; raw rasters excluded
+OpenStreetMap current,roads facilities and buildings,https://www.openstreetmap.org/copyright,complete_four_events,Derived metrics and attributed figures; bulk extracts and caches excluded
+ohsome API,pre-event OSM sensitivity,https://docs.ohsome.org/ohsome-api/stable/endpoints.html,complete_with_coverage_gates,Derived summaries and fetch log; failed requests are not zero
+CDC SVI 2016,social vulnerability proxy,https://www.atsdr.cdc.gov/place-health/php/svi/index.html,complete_149_harvey_tracts,Study aggregates and bootstrap metrics only
+OpenFEMA NFIP Claims v2,insured property loss proxy,https://www.fema.gov/openfema-data-page/fima-nfip-redacted-claims-v2,complete_10134_claims_aggregated_to_149_tracts,Individual claims excluded
+OpenFEMA RI-IHP v2,registration eligibility and assistance proxy,https://www.fema.gov/openfema-data-page/registration-intake-and-individuals-household-program-ri-ihp-v2,complete_41_zip_aggregates,One-table ZIP aggregates only
+US Census TIGER/Line,tract and ZIP spatial support,https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html,complete_external_proxy_support,Joined identifiers and result aggregates only

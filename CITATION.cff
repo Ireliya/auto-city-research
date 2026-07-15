@@ -1,12 +1,12 @@
 cff-version: 1.2.0
-title: "Damage Is Not Need: Auditing Damage-Only Disaster Recovery Priority with Multi-Source Urban Evidence"
+title: "Damage Is Not Need: Auditing Post-Disaster Priority Disagreement with Multi-Source Urban Evidence"
 message: "If you use this repository, please cite it as below."
 type: software
 authors:
-  - name: "auto city research"
+  - name: "Auto-City-Research"
 repository-code: "https://github.com/Ireliya/auto-city-research"
 url: "https://github.com/Ireliya/auto-city-research"
-date-released: "2026-07-11"
+date-released: "2026-07-15"
 keywords:
   - urban-ai
   - disaster-response

@@ -1,23 +1,41 @@
-version: "1.1"
-created_at: "2026-07-10 23:04:20 CST"
-updated_at: "2026-07-11 01:55:00 CST"
-status: "dataset_plan_locked_v1_submission_implemented"
+version: "2.0"
+status: "final_evidence_sources"
 
 research_problem:
-  short_name: "damage_need_mismatch"
-  question: "Does a damage-only urban AI disaster-response ranking diverge from a need-aware ranking once population, accessibility, critical services, and urban form are considered?"
+  short_name: "damage_priority_disagreement_audit"
+  question: >-
+    Where does a damage-only post-disaster ranking disagree with transparent
+    multi-source priority scenarios, and which disagreements remain under fixed
+    definition, weight, population-resolution, spatial-scale, and temporal checks?
+  claim_boundary: >-
+    The analysis audits priority disagreement. It does not observe true unmet
+    need and does not prescribe operational dispatch.
 
-core_datasets:
+core_events:
+  - name: "hurricane-harvey"
+    disaster_type: "flooding"
+    xbd_buildings: 23014
+    reference_cells_500m: 612
+  - name: "mexico-earthquake"
+    disaster_type: "earthquake"
+    xbd_buildings: 32271
+    reference_cells_500m: 288
+  - name: "palu-tsunami"
+    disaster_type: "tsunami"
+    xbd_buildings: 31394
+    reference_cells_500m: 196
+  - name: "santa-rosa-wildfire"
+    disaster_type: "fire"
+    xbd_buildings: 12950
+    reference_cells_500m: 352
+
+datasets:
   xbd:
-    names:
-      - "xView2"
-      - "xBD"
+    names: ["xView2", "xBD"]
     role: "physical_damage_evidence"
-    local_status: "available_on_remote"
-    remote_root: "<REMOTE_XBD_ARCHIVE>"
-    train_images: "<REMOTE_XBD_ARCHIVE>/train/train/images"
-    train_labels: "<REMOTE_XBD_ARCHIVE>/train/train/labels"
-    test_images: "<REMOTE_XBD_ARCHIVE>/test/test/images"
+    source_status: "available_in_reference_compute_workspace"
+    public_release: "derived labels and grid aggregates only"
+    raw_imagery_redistributed: false
     required_fields:
       - "features.lng_lat"
       - "features.xy"
@@ -25,112 +43,92 @@ core_datasets:
       - "metadata.disaster"
       - "metadata.disaster_type"
       - "metadata.capture_date"
-    derived_outputs:
-      - "building-level damage table"
-      - "event footprint polygons"
-      - "grid-level damage index D"
 
-  worldpop:
-    role: "population_exposure"
-    status: "joined_complete"
-    implemented_product: "WorldPop Global1 1km event-year population count rasters"
-    derived_outputs:
-      - "grid-level population P"
-      - "affected population proxy D * P"
-    fallback:
-      - "GHSL GHS-POP"
+  worldpop_100m:
+    role: "primary_population_exposure"
+    product: "WorldPop R2025A 100m event-year population count"
+    countries_years:
+      USA: 2017
+      MEX: 2017
+      IDN: 2018
+    status: "complete_all_four_events"
+    quality: "1448/1448 reference cells matched; no missing, nonfinite, or negative values"
+    raw_rasters_redistributed: false
 
-  osm_roads:
-    role: "accessibility_and_network_support"
-    status: "joined_complete_current_snapshot"
-    implemented_source: "current OpenStreetMap snapshot via OSMnx/Overpass-compatible retrieval"
-    historical_target: "30 days before each disaster event when feasible; retained as optional robustness"
-    derived_outputs:
+  worldpop_1km:
+    role: "population_resolution_sensitivity"
+    product: "WorldPop Global1 1km event-year population count"
+    status: "complete_all_four_events"
+    raw_rasters_redistributed: false
+
+  osm_current:
+    role: "current_road_facility_and_building_context"
+    source: "OpenStreetMap via OSMnx/Overpass-compatible retrieval"
+    status: "complete_all_four_events"
+    derived_features:
       - "road length density"
       - "intersection density"
-      - "network redundancy proxy"
-      - "distance/access proxy"
-    fallback:
-      - "current OSM snapshot with explicit bias note"
+      - "facility count"
+      - "nearest critical facility distance"
+      - "building count and footprint area"
+    temporal_boundary: "current snapshots may include post-event edits"
 
-  osm_amenities:
-    role: "critical_services"
-    status: "joined_complete_current_snapshot"
-    implemented_source: "current OpenStreetMap snapshot via OSMnx/Overpass-compatible retrieval"
-    target_features:
-      - "hospital"
-      - "clinic"
-      - "school"
-      - "shelter"
-      - "fire_station"
-      - "police"
-      - "public_service"
-    derived_outputs:
-      - "critical-service count C"
-      - "service exposure around damaged/high-population cells"
+  osm_historical:
+    role: "pre_event_temporal_sensitivity"
+    source: "ohsome API"
+    status: "complete_with_coverage_gates"
+    derived_features:
+      - "pre-event roads"
+      - "pre-event critical facilities"
+      - "pre-event buildings"
+    failure_rule: "request failure or insufficient coverage is not_assessable, never zero"
 
-  ghsl:
-    role: "urban_form_and_settlement_context"
-    status: "script_ready_source_download_unavailable_on_2026-07-11"
-    current_submission_proxy: "xBD-derived building count and total mapped building area per 500m cell"
-    preferred_products:
-      - "GHS-BUILT-C R2023A 2018 settlement characteristics"
-      - "GHS-SMOD settlement classification if needed"
-    derived_outputs:
-      - "built-up / residential form proxy U"
-      - "settlement intensity or morphology class"
+  cdc_svi_2016:
+    role: "pre_event_social_vulnerability_proxy"
+    geography: "Census tract"
+    event_scope: "Hurricane Harvey footprint"
+    status: "complete_149_tracts"
+    truth_status: "external proxy, not unmet-need ground truth"
 
-  osm_buildings:
-    role: "independent_urban_form_robustness"
-    status: "joined_complete_current_snapshot"
-    implemented_source: "current OpenStreetMap building footprints via OSMnx/Overpass"
-    derived_outputs:
-      - "OSM building count per 500m cell"
-      - "OSM building footprint area per 500m cell"
-      - "OSM building density and area fraction"
+  openfema_nfip_claims_v2:
+    role: "insured_property_loss_proxy"
+    geography: "Census tract"
+    event_scope: "Hurricane Harvey period and study footprint"
+    status: "complete_10134_claims_aggregated_to_149_tracts"
+    privacy_rule: "individual claim rows are not saved or redistributed"
+    truth_status: "external proxy, not unmet-need ground truth"
 
-  xbd_urban_form_proxy:
-    role: "urban_form_submission_proxy"
-    status: "derived_complete"
-    source: "xBD building polygons"
-    derived_outputs:
-      - "building count per 500m cell"
-      - "total mapped building area per 500m cell"
+  openfema_ri_ihp:
+    role: "registration_eligibility_and_assistance_proxy"
+    geography: "ZIP"
+    event_scope: "Hurricane Harvey"
+    status: "complete_41_zip_aggregates"
+    table_rule: "one RI-IHP table only; owner and renter records are not double-counted"
+    truth_status: "external proxy, not unmet-need ground truth"
 
-enhancement_datasets:
-  viirs_nighttime_lights:
-    role: "economic_activity_or_recovery_capacity_proxy"
-    status: "optional_after_current_submission"
-  ghsl_population:
-    role: "population fallback or robustness check"
-    status: "optional_or_fallback"
+  census_geographies:
+    role: "tract_and_zip_spatial_support"
+    source: "US Census TIGER/Line or documented mirror"
+    status: "complete_for_external_proxy_joins"
 
-core_events:
-  - name: "mexico-earthquake"
-    disaster_type: "earthquake"
-    rationale: "dense urban earthquake case"
-  - name: "palu-tsunami"
-    disaster_type: "tsunami"
-    rationale: "coastal tsunami case"
-  - name: "santa-rosa-wildfire"
-    disaster_type: "fire"
-    rationale: "suburban wildfire case"
-  - name: "hurricane-harvey"
-    disaster_type: "flooding"
-    rationale: "flooding and road-accessibility case"
+analysis_units:
+  reference_grid_m: 500
+  robustness_grids_m: [250, 500, 1000]
+  grid_rule: "each scale is rebuilt from building-level inputs"
 
-fallback_events:
-  - "hurricane-florence"
-  - "hurricane-michael"
-  - "socal-fire"
-
-analysis_unit:
-  default: "500m equal-area grid or compact hexagonal grid"
-  alternatives_for_robustness:
-    - "250m grid"
-    - "1km grid"
+redistribution:
+  included:
+    - "privacy-safe derived CSV and GeoJSON"
+    - "configs, manifests, scripts, figures, reports, and evidence records"
+  excluded:
+    - "raw xBD satellite imagery and full archive"
+    - "raw WorldPop rasters"
+    - "bulk OSM extracts and caches"
+    - "individual NFIP or FEMA assistance rows"
+    - "credentials and private infrastructure details"
 
 non_goals:
-  - "No causal claim about urban form causing damage."
-  - "No single morally correct priority formula."
-  - "No raw satellite image redistribution before license confirmation."
+  - "No causal claim that urban form causes damage or need."
+  - "No assertion that one policy-weight vector is morally correct."
+  - "No claim that an external proxy is universal ground truth."
+  - "No autonomous emergency allocation recommendation."

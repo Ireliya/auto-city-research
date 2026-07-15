@@ -1,0 +1,46 @@
+version: "1.0"
+random_seed: 20260715
+primary_cell_m: 500
+
+worldpop:
+  resolutions:
+    - "100m"
+    - "1km_ua"
+  primary_candidate: "100m"
+  total_difference_review_threshold: 0.25
+
+historical_osm:
+  api_root: "https://api.ohsome.org/v1"
+  tile_degrees: 0.10
+  max_attempts: 5
+  retry_seconds: 5
+  comparable_road_coverage_ratio: 0.50
+  comparable_facility_coverage_ratio: 0.50
+  minimum_mismatch_jaccard: 0.50
+  snapshots:
+    hurricane-harvey: "2017-08-24"
+    mexico-earthquake: "2017-09-18"
+    palu-tsunami: "2018-09-27"
+    santa-rosa-wildfire: "2017-10-07"
+
+external_validation:
+  bootstrap_replicates: 1000
+  top_share: 0.20
+  svi_year: 2016
+  ihp_disaster_number: 4332
+  ihp_state: "TX"
+  ihp_main_coverage_threshold: 0.10
+  ihp_coverage_sensitivity:
+    - 0.00
+    - 0.05
+    - 0.10
+    - 0.20
+
+consensus:
+  top_share: 0.20
+  minimum_damage_baselines: 3
+  weight_regime: "policy_plausible"
+  minimum_weight_probability: 0.80
+  minimum_population_resolutions: 2
+  minimum_spatial_scales: 2
+  minimum_area_overlap: 0.50

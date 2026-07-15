@@ -4,8 +4,8 @@
 The primary mismatch analysis uses event-wise top-percentile flags. That is a
 reasonable audit rule, but low-damage events can contain many tied damage
 scores. This script adds a stricter operational interpretation: if responders
-can inspect exactly k cells per event, which cells are high need in at least two
-need-aware scenarios but outside the exact damage-only budget?
+can inspect exactly k cells per event, which cells enter at least two
+multi-source scenarios but remain outside the exact damage-only budget?
 """
 
 from __future__ import annotations
@@ -262,7 +262,7 @@ def make_figure(summary: pd.DataFrame, primary_summary: pd.DataFrame, out_dir: P
     axes[0].set_title("Exact-budget sensitivity", loc="left", pad=7)
     add_panel_label(axes[0], "a", x=-0.15, y=1.04)
     axes[0].set_xlabel("Inspection budget")
-    axes[0].set_ylabel("Stable mismatch cells")
+    axes[0].set_ylabel("Scenario-consensus disagreement cells")
     axes[0].set_xticks(TOP_SHARES)
     axes[0].set_xticklabels([f"{int(s * 100)}%" for s in TOP_SHARES])
     style_numeric_axis(axes[0], axis="y")
@@ -303,7 +303,7 @@ def make_figure(summary: pd.DataFrame, primary_summary: pd.DataFrame, out_dir: P
     axes[1].invert_yaxis()
     axes[1].set_title("Top-20 rule comparison", loc="left", pad=7)
     add_panel_label(axes[1], "b", x=-0.18, y=1.04)
-    axes[1].set_xlabel("Stable mismatch cells")
+    axes[1].set_xlabel("Scenario-consensus disagreement cells")
     axes[1].set_ylabel("")
     axes[1].legend(loc="lower right", fontsize=6.2, handletextpad=0.4)
     axes[1].margins(x=0.16)
@@ -340,8 +340,8 @@ def write_summary(
         "## Ranking Rule",
         "",
         "- Damage-only top-k uses xBD-derived damage variables only, then `cell_id` for deterministic final tie-breaking.",
-        "- Need-aware top-k is computed separately for each active scenario.",
-        "- A strict-budget stable mismatch cell is high need in at least two need-aware scenarios and outside the exact damage-only top-k.",
+        "- Multi-source Top-k is computed separately for each active scenario.",
+        "- A strict-budget disagreement cell enters at least two multi-source scenarios and remains outside the exact damage-only Top-k.",
         f"- Active scenarios: {', '.join(f'`{name}`' for name in scenarios)}.",
         "",
         "## Top-20 Comparison",
@@ -379,7 +379,7 @@ def write_summary(
             "",
             "## Scenario-Level Top-20 Exact-Budget Counts",
             "",
-            "| Event | Scenario | High-need / low-damage cells | Top-k Jaccard |",
+            "| Event | Scenario | Multi-source / damage-only disagreement cells | Top-k Jaccard |",
             "| --- | --- | ---: | ---: |",
         ]
     )
@@ -393,7 +393,7 @@ def write_summary(
             "",
             "## Interpretation",
             "",
-            "The exact-budget rule preserves the main Harvey and Santa Rosa signals, and it turns Mexico from a zero-count primary case into a clear low-damage tie-boundary case. Under a strict top-20 budget, Mexico has high-need cells outside the exact damage-only budget even though the primary percentile rule marks all Mexico cells as damage-top because of tied near-zero damage ranks.",
+            "The exact-budget rule preserves the main Harvey and Santa Rosa signals, and it turns Mexico from a zero-count percentile case into a clear low-damage tie-boundary case. Under a strict Top-20% budget, Mexico has multi-source selections outside the exact damage-only budget even though the percentile rule marks all Mexico cells as damage-top because of tied near-zero damage ranks.",
             "",
             "## Limitations",
             "",

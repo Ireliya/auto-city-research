@@ -274,7 +274,7 @@ def make_figure(profile: pd.DataFrame, correlations: pd.DataFrame, out_dir: Path
         fmt=".2f",
         linewidths=0.6,
         linecolor="white",
-        cbar_kws={"label": "Standardized mean difference\n(mismatch - other)", "shrink": 0.82},
+        cbar_kws={"label": "Standardized mean difference\n(disagreement - other)", "shrink": 0.82},
     )
     axes[0].set_title("Independent building-form profile", loc="left", pad=7)
     add_panel_label(axes[0], "a", x=-0.17, y=1.04)
@@ -322,6 +322,7 @@ def write_manifest(out_dir: Path, args: argparse.Namespace, fetch_logs: list[dic
         "date_mode": args.date_mode,
         "buffer_deg": args.buffer_deg,
         "cell_m": args.cell_m,
+        "reused_building_grid": str(args.reuse_building_grid) if args.reuse_building_grid else None,
         "building_tags": BUILDING_TAGS,
         "interpretation": "Independent urban-form robustness layer from OSM building footprints. The primary priority mismatch score is unchanged.",
         "outputs": [
@@ -335,7 +336,7 @@ def write_manifest(out_dir: Path, args: argparse.Namespace, fetch_logs: list[dic
         ],
         "known_limitations": [
             "Current OSM buildings may include post-disaster edits and uneven mapper coverage.",
-            "OSM building footprints are used only as a robustness layer, not as a replacement for xBD labels or GHSL.",
+            "OSM building footprints are used only as a robustness layer, not as a replacement for xBD damage labels.",
             "Building counts use representative points inside cells; building areas use polygon-grid intersections.",
         ],
         "fetch_logs": fetch_logs,
@@ -354,6 +355,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--buffer-deg", type=float, default=0.002)
     parser.add_argument("--timeout", type=int, default=300)
     parser.add_argument("--cell-m", type=int, default=500)
+    parser.add_argument(
+        "--reuse-building-grid",
+        type=Path,
+        help="Reuse a previously audited osm_building_grid_features_<cell_m>m.csv.",
+    )
     return parser.parse_args()
 
 
@@ -367,30 +373,41 @@ def main() -> None:
         raise ValueError("Input grid must include stable_mismatch")
     footprints = pd.read_csv(args.footprints_csv).set_index("event")
 
-    all_metrics = []
-    fetch_logs = []
-    for event in sorted(grid["event"].unique()):
-        event_grid = grid[grid["event"] == event].copy()
-        if event not in footprints.index:
-            raise ValueError(f"Missing event footprint for {event}")
-        event_center_lon = float(event_grid["cell_center_lon"].mean())
-        event_center_lat = float(event_grid["cell_center_lat"].mean())
-        utm_epsg = estimate_utm_epsg(event_center_lon, event_center_lat)
-        polygon = buffered_event_polygon(footprints.loc[event], args.buffer_deg)
-        buildings, fetch_log = fetch_buildings(polygon, event, args, args.out_dir)
-        metrics = building_metrics(event_grid, buildings, utm_epsg, args.cell_m)
-        metrics.insert(0, "event", event)
-        all_metrics.append(metrics)
-        fetch_log["utm_epsg"] = utm_epsg
-        fetch_logs.append(fetch_log)
-        print(
-            event,
-            f"status={fetch_log['status']}",
-            f"raw={fetch_log['raw_features']}",
-            f"polygons={fetch_log['polygon_features']}",
+    if args.reuse_building_grid:
+        osm_metrics = pd.read_csv(args.reuse_building_grid)
+        required_keys = set(zip(grid["event"].astype(str), grid["cell_id"].astype(str)))
+        available_keys = set(
+            zip(osm_metrics["event"].astype(str), osm_metrics["cell_id"].astype(str))
         )
-
-    osm_metrics = pd.concat(all_metrics, ignore_index=True)
+        if required_keys != available_keys:
+            raise ValueError("Reusable OSM building grid does not match the priority grid cells")
+        source_log = args.reuse_building_grid.parent / "osm_building_fetch_log.csv"
+        fetch_logs = pd.read_csv(source_log).to_dict(orient="records") if source_log.exists() else []
+        print(f"reused_building_grid={args.reuse_building_grid}")
+    else:
+        all_metrics = []
+        fetch_logs = []
+        for event in sorted(grid["event"].unique()):
+            event_grid = grid[grid["event"] == event].copy()
+            if event not in footprints.index:
+                raise ValueError(f"Missing event footprint for {event}")
+            event_center_lon = float(event_grid["cell_center_lon"].mean())
+            event_center_lat = float(event_grid["cell_center_lat"].mean())
+            utm_epsg = estimate_utm_epsg(event_center_lon, event_center_lat)
+            polygon = buffered_event_polygon(footprints.loc[event], args.buffer_deg)
+            buildings, fetch_log = fetch_buildings(polygon, event, args, args.out_dir)
+            metrics = building_metrics(event_grid, buildings, utm_epsg, args.cell_m)
+            metrics.insert(0, "event", event)
+            all_metrics.append(metrics)
+            fetch_log["utm_epsg"] = utm_epsg
+            fetch_logs.append(fetch_log)
+            print(
+                event,
+                f"status={fetch_log['status']}",
+                f"raw={fetch_log['raw_features']}",
+                f"polygons={fetch_log['polygon_features']}",
+            )
+        osm_metrics = pd.concat(all_metrics, ignore_index=True)
     osm_metrics.to_csv(args.out_dir / f"osm_building_grid_features_{args.cell_m}m.csv", index=False)
 
     joined = grid.merge(osm_metrics.drop(columns=["event"]), on="cell_id", how="left")

@@ -1,6 +1,6 @@
 version: "1.0"
 created_at: "2026-07-15"
-status: "active_stage2"
+status: "active_evidence_hardening"
 
 random_seed: 20260715
 top_shares:
@@ -49,4 +49,3 @@ external_validation:
   bootstrap_replicates: 1000
   top_share: 0.20
   outcome_proxy_note: "NFIP insured-loss claims are an external outcome proxy, not ground-truth unmet recovery need."
-

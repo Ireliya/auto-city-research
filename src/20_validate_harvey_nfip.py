@@ -87,9 +87,9 @@ MODEL_LABELS = {
     "damage_weighted_area": "Damage area",
     "damage_building_count": "Damaged buildings",
     "damage_severe_count": "Severe buildings",
-    "need_balanced_need": "Need: balanced",
-    "need_population_sensitive": "Need: population",
-    "need_accessibility_sensitive": "Need: accessibility",
+    "need_balanced_need": "Multi-source: balanced",
+    "need_population_sensitive": "Multi-source: population",
+    "need_accessibility_sensitive": "Multi-source: accessibility",
 }
 PRIMARY_DAMAGE_MODEL = "damage_area_weighted_mean_severity"
 OUTCOME_COLUMNS = ["claim_count", "total_reported_damage_amount", "total_paid_amount"]
@@ -571,6 +571,10 @@ def make_figure(metrics: pd.DataFrame, figure_dir: Path) -> None:
     ].copy()
     if selected.empty:
         return
+    selected["model_label"] = selected["model"].map(MODEL_LABELS)
+    if selected["model_label"].isna().any():
+        missing = sorted(selected.loc[selected["model_label"].isna(), "model"].unique())
+        raise ValueError(f"Missing publication labels for NFIP models: {missing}")
     sns.set_theme(style="white", context="paper")
     apply_publication_style()
     figure_dir.mkdir(parents=True, exist_ok=True)
@@ -591,7 +595,7 @@ def make_figure(metrics: pd.DataFrame, figure_dir: Path) -> None:
         y = np.arange(len(data))
         lower = data["value"].to_numpy() - data["ci_low"].to_numpy()
         upper = data["ci_high"].to_numpy() - data["value"].to_numpy()
-        colors = [NEUTRAL if not str(label).startswith("Need:") else BLUE for label in data["model_label"]]
+        colors = [NEUTRAL if not str(label).startswith("Multi-source:") else BLUE for label in data["model_label"]]
         for idx in range(len(data)):
             ax.errorbar(
                 data.loc[idx, "value"],

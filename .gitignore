@@ -2,10 +2,7 @@ __pycache__/
 *.py[cod]
 .huggingface/
 /MANIFEST.csv
-/records/
 
 data/derived/
 data/reproduced/
-reports/figures/
-reports/pdf/
 reports/reproduced_figures/

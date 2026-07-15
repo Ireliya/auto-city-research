@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Analyze mismatch between damage-only and need-aware priority rankings."""
+"""Analyze disagreement between damage-only and multi-source priority rankings."""
 
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ def load_scenarios(path: Path) -> list[dict]:
             }
         )
     if not scenarios:
-        raise ValueError("No active need-aware scenarios found")
+        raise ValueError("No active multi-source priority scenarios found")
     return scenarios
 
 
@@ -195,7 +195,7 @@ def write_outputs(grid: gpd.GeoDataFrame, metrics: pd.DataFrame, summary: pd.Dat
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "script": "src/05_analyze_priority_mismatch.py",
         "scenarios": scenarios,
-        "stable_mismatch_definition": "top 20% need-aware priority in at least two scenarios and outside top 20% damage-only priority",
+        "stable_mismatch_definition": "top 20% multi-source priority in at least two scenarios and outside top 20% damage-only priority",
         "outputs": [
             "priority_mismatch_grid_500m.csv",
             "priority_mismatch_grid_500m.geojson",

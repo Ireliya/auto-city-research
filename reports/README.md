@@ -1,16 +1,12 @@
-# Reports Directory
+# Reports
 
-Use this directory for research-report sources and presentation materials.
-
-Do not place raw satellite imagery here.
-
-Current key files:
-
-- `paper_draft_en.md`: English research paper source.
+- `paper_draft_en.md`: English paper source.
 - `competition_report_cn.md`: Chinese competition report source.
 - `data_description_reproducibility.md`: data and reproducible-code guide.
-- `data_access_license_notes.md`: data access, license, attribution, and redistribution-boundary notes.
-- `ai_collaboration_summary_cn.md`: Chinese AI collaboration summary.
-- `presentation_script_cn.md`: Chinese presentation script and Q&A support.
-- `figures/` is restored by `python scripts/download_data.py` from the Hugging Face dataset.
-- `pdf/` is restored by `python scripts/download_data.py` from the Hugging Face dataset.
+- `data_access_license_notes.md`: source, license, attribution, and redistribution notes.
+- `ai_collaboration_summary_cn.md`: AI collaboration record.
+- `presentation_script_cn.md`: Chinese presentation and question support.
+- `figures/`: 12 publication figures in SVG, PDF, 600 dpi PNG, and grayscale-check PNG.
+- `pdf/`: rendered English paper, Chinese report, reproducibility guide, data notes, AI record, and presentation material.
+
+All public report claims use the fixed evidence in `records/final_evidence_freeze_20260715-1612.md`.

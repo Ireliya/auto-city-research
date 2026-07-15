@@ -19,10 +19,10 @@ from sklearn.neighbors import NearestNeighbors
 
 
 EVENT_OSM_DATES = {
-    "hurricane-harvey": "2017-08-31",
-    "mexico-earthquake": "2017-09-20",
-    "palu-tsunami": "2018-09-29",
-    "santa-rosa-wildfire": "2017-10-11",
+    "hurricane-harvey": "2017-08-24",
+    "mexico-earthquake": "2017-09-18",
+    "palu-tsunami": "2018-09-27",
+    "santa-rosa-wildfire": "2017-10-07",
 }
 
 FACILITY_TAGS = {

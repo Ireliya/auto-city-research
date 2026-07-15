@@ -308,7 +308,7 @@ def make_figure(baseline_summary: pd.DataFrame, weight_summary: pd.DataFrame, fi
         vmin=0,
         linewidths=0.6,
         linecolor="white",
-        cbar_kws={"label": "Mismatch cells", "shrink": 0.82, "pad": 0.025},
+        cbar_kws={"label": "Disagreement cells", "shrink": 0.82, "pad": 0.025},
         ax=axes[0],
     )
     axes[0].set_title("Damage-baseline robustness (top 20%)", loc="left", pad=7)
@@ -336,7 +336,7 @@ def make_figure(baseline_summary: pd.DataFrame, weight_summary: pd.DataFrame, fi
         axes[1].text(float(row["mismatch_count_q975"]) + 1.2, y[idx], f"{med[idx]:.0f}", va="center", fontsize=6.3)
     axes[1].set_yticks(y, weights_top20["event_label"])
     axes[1].invert_yaxis()
-    axes[1].set_xlabel("Mismatch cells, median and 95% interval")
+    axes[1].set_xlabel("Disagreement cells, median and 95% interval")
     axes[1].set_title("Policy-plausible weight uncertainty", loc="left", pad=7)
     add_panel_label(axes[1], "b", x=-0.18, y=1.04)
     axes[1].margins(x=0.12)
