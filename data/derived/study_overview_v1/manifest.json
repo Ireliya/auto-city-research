@@ -15,6 +15,22 @@
       "bytes": 921,
       "sha256": "019eabf8d706566972f6a672ac467c710eea6fb0988c84a0182926a0d428e6cc"
     },
+    "docs/assets/event_hurricane-harvey.png": {
+      "bytes": 55265,
+      "sha256": "80c59aea2bdc7bf506edf6e8cc45a26602f280d14c53629dbf7e7bda4099276a"
+    },
+    "docs/assets/event_mexico-earthquake.png": {
+      "bytes": 32100,
+      "sha256": "a59529eca5388a3447edcf0ea059276e34f0abeb3684f93082c8792379f27b75"
+    },
+    "docs/assets/event_palu-tsunami.png": {
+      "bytes": 22042,
+      "sha256": "b5392e996aaa0a9bde7a5635277c74a557243c57d4646446be7aa73eebb69ed2"
+    },
+    "docs/assets/event_santa-rosa-wildfire.png": {
+      "bytes": 52195,
+      "sha256": "593e79b62b3db3c7d028cff93bd354c9c86525b1482cf6242d706a150ae20e79"
+    },
     "docs/assets/fig11_consensus_audit.png": {
       "bytes": 265378,
       "sha256": "7bb7dbb5eac27d3a61aafb5b002a1d4ca9018af78971359ad52a08a9302f1a21"
@@ -52,40 +68,40 @@
       "sha256": "27b28de76cfcbc0ffc02f7665a7be74582e3311afdf6420f4ed43daa55e3b491"
     },
     "docs/assets/study_overview_global_multiscale.png": {
-      "bytes": 1056624,
-      "sha256": "2226e11b4b4188029f13354ab0d560cf99b340189090117578a0381e570502d6"
+      "bytes": 1042647,
+      "sha256": "541c6e3b7fd815f9d2ad0a9811dc89a4900eb142b337264f3ff50639c6e12706"
     },
     "docs/assets/team_logo.png": {
       "bytes": 58307,
       "sha256": "8d2013e8f842e7a2f634245153f0dcaf82a841c6220666de603147c352f1a701"
     },
     "docs/data/study.json": {
-      "bytes": 2328,
-      "sha256": "e2e2b0628f93d5c9fa1528565206371031d752453858c5224802a9fb9ecd631b"
+      "bytes": 2552,
+      "sha256": "21b295b708bac62caff8379a46d86e976bcd5d8e64ad23aed0f3f18040b2fe4d"
     },
     "docs/downloads/competition_report_cn.pdf": {
-      "bytes": 8303190,
-      "sha256": "4a06fa5819ede6247e372b1fa671db1fa55ae8d33d56435cf370029c1505e9a5"
+      "bytes": 8231070,
+      "sha256": "79f91176cc20157344be23fe635b1b5ff0565ccded86f96e7cfdd461e01b23c1"
     },
     "docs/downloads/paper_en.pdf": {
-      "bytes": 9854281,
-      "sha256": "6bcb711a2bbabbdfbf56ff29062f8b07ba8b6fc2a8cd8bc4880841a450a1e18d"
+      "bytes": 9769130,
+      "sha256": "1d62f4b4a28f61173d7eba60caa3cf34737e0a4f9d969167bde37b705a48ffac"
     },
     "reports/figures/study_overview_global_multiscale.pdf": {
-      "bytes": 255764,
-      "sha256": "f8056f01a77a5fd95c71bf04dd382432fcad452b940d2111d3402d865ce336a9"
+      "bytes": 255910,
+      "sha256": "e1facdf0377229e2ea1ed870d5a901d8d2f9f0cc0e1a91c3f4c9b8533be088d0"
     },
     "reports/figures/study_overview_global_multiscale.png": {
-      "bytes": 1056624,
-      "sha256": "2226e11b4b4188029f13354ab0d560cf99b340189090117578a0381e570502d6"
+      "bytes": 1042647,
+      "sha256": "541c6e3b7fd815f9d2ad0a9811dc89a4900eb142b337264f3ff50639c6e12706"
     },
     "reports/figures/study_overview_global_multiscale.svg": {
-      "bytes": 753305,
-      "sha256": "88d8a97b957c2bfd87299d444cffb524d4367b2645d7c20151f8e0f08654f1a0"
+      "bytes": 759057,
+      "sha256": "15d36640292d863444307e85ea1fc6710a7a1c84f452ef754248a92cc44d4366"
     },
     "reports/figures/study_overview_global_multiscale_grayscale.png": {
-      "bytes": 940376,
-      "sha256": "170ed232222831e09b56bae74e2b7a66eb17af9a97912afb0947ef231f956e95"
+      "bytes": 926186,
+      "sha256": "3eb1f024af74ab41506c1f065576a81893667afde200cd937752977b9a054be8"
     }
   },
   "scope": "Four selected xBD event footprints; not global coverage.",

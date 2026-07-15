@@ -425,6 +425,7 @@ def rounded_box(
     edgecolor: str = LIGHT_NEUTRAL,
     textcolor: str = INK,
     fontsize: float = 6.1,
+    min_fontsize: float = 4.4,
     weight: str = "normal",
 ) -> None:
     patch = FancyBboxPatch(
@@ -437,7 +438,7 @@ def rounded_box(
         facecolor=facecolor,
     )
     ax.add_patch(patch)
-    ax.text(
+    label = ax.text(
         xy[0] + width / 2,
         xy[1] + height / 2,
         text,
@@ -447,7 +448,24 @@ def rounded_box(
         color=textcolor,
         fontweight=weight,
         linespacing=1.15,
+        clip_on=True,
     )
+    label.set_clip_path(patch)
+
+    # Fit against the rendered patch, not an estimated character count. This
+    # keeps SVG/PDF labels inside their boxes across font backends.
+    current_size = fontsize
+    for _ in range(16):
+        ax.figure.canvas.draw()
+        renderer = ax.figure.canvas.get_renderer()
+        text_box = label.get_window_extent(renderer=renderer)
+        patch_box = patch.get_window_extent(renderer=renderer)
+        if text_box.width <= patch_box.width * 0.88 and text_box.height <= patch_box.height * 0.82:
+            break
+        current_size = max(min_fontsize, current_size - 0.18)
+        label.set_fontsize(current_size)
+        if current_size <= min_fontsize:
+            break
 
 
 def arrow(ax: plt.Axes, start: tuple[float, float], end: tuple[float, float], color: str = "#8C989E") -> None:
@@ -471,27 +489,27 @@ def draw_audit_framework(ax: plt.Axes) -> None:
     ax.axis("off")
     ax.set_title("Fixed-gate disagreement audit", loc="left", fontsize=7.5, color=INK, pad=5)
 
-    rounded_box(ax, (0.02, 0.79), 0.44, 0.13, "Damage-only\nrankings", facecolor="#F8E7EA", edgecolor="#D8A3AE", textcolor="#7F2946", weight="bold")
-    rounded_box(ax, (0.54, 0.79), 0.44, 0.13, "Multi-source priority\nscenarios", facecolor="#E8F1F5", edgecolor="#9DBDCE", textcolor=BLUE, weight="bold")
-    ax.text(0.50, 0.855, "versus", ha="center", va="center", fontsize=5.8, color=MUTED)
+    rounded_box(ax, (0.02, 0.81), 0.41, 0.13, "Damage-only\nrankings", facecolor="#F8E7EA", edgecolor="#D8A3AE", textcolor="#7F2946", weight="bold")
+    rounded_box(ax, (0.57, 0.81), 0.41, 0.13, "Multi-source priority\nscenarios", facecolor="#E8F1F5", edgecolor="#9DBDCE", textcolor=BLUE, weight="bold")
+    ax.text(0.50, 0.875, "versus", ha="center", va="center", fontsize=5.1, color=MUTED)
 
     ax.text(
         0.50,
-        0.708,
+        0.735,
         "4 damage baselines  |  20,000 weight draws\n2 population products  |  3 rebuilt scales",
         ha="center",
         va="center",
-        fontsize=5.7,
+        fontsize=5.35,
         color=MUTED,
         linespacing=1.25,
     )
-    arrow(ax, (0.50, 0.67), (0.50, 0.61))
+    arrow(ax, (0.50, 0.695), (0.50, 0.665))
 
     stages = [
-        (0.08, 0.51, 0.84, 0.10, "1,448 cells", "Audited universe", "#F2F4F5", "#AEB8BE", INK),
-        (0.13, 0.36, 0.74, 0.10, "73 percentile / 115 exact top-20%", "Diagnostic disagreements", "#E8F1F5", "#9DBDCE", BLUE),
-        (0.25, 0.21, 0.50, 0.10, "4 cells", "Cross-definition robust; Mexico only", "#F7EDD9", "#D8B871", "#76551B"),
-        (0.34, 0.06, 0.32, 0.10, "0 cells", "Historical OSM support", "#F8E7EA", "#D8A3AE", "#7F2946"),
+        (0.06, 0.545, 0.88, 0.11, "1,448 cells", "Audited universe", "#F2F4F5", "#AEB8BE", INK),
+        (0.10, 0.390, 0.80, 0.11, "73 percentile / 115 exact top-20%", "Diagnostic disagreements", "#E8F1F5", "#9DBDCE", BLUE),
+        (0.18, 0.225, 0.64, 0.12, "4 cells", "Cross-definition robust\nMexico only", "#F7EDD9", "#D8B871", "#76551B"),
+        (0.27, 0.070, 0.46, 0.11, "0 cells", "Historical OSM support", "#F8E7EA", "#D8A3AE", "#7F2946"),
     ]
     for index, (x, y, w, h, headline, subline, face, edge, color) in enumerate(stages):
         rounded_box(ax, (x, y), w, h, f"{headline}\n{subline}", facecolor=face, edgecolor=edge, textcolor=color, fontsize=5.75, weight="bold" if index >= 2 else "normal")
@@ -500,13 +518,14 @@ def draw_audit_framework(ax: plt.Axes) -> None:
             arrow(ax, (0.50, y - 0.008), (0.50, next_y + 0.008))
 
     ax.text(
-        0.98,
+        0.50,
         0.01,
-        "External proxies remain construct-specific and mixed; none is treated as true unmet need.",
-        ha="right",
+        "External proxies remain mixed and construct-specific;\nnone is treated as true unmet need.",
+        ha="center",
         va="bottom",
-        fontsize=5.35,
+        fontsize=4.45,
         color=MUTED,
+        linespacing=1.12,
     )
 
 
@@ -598,6 +617,151 @@ def make_site_hero(world: gpd.GeoDataFrame, overview: pd.DataFrame, output_path:
     plt.close(fig)
 
 
+def padded_event_bounds(frame: gpd.GeoDataFrame) -> tuple[float, float, float, float]:
+    min_x, min_y, max_x, max_y = frame.total_bounds
+    span_x = max(max_x - min_x, 0.025)
+    span_y = max(max_y - min_y, 0.025)
+    pad_x = max(span_x * 0.13, 0.018)
+    pad_y = max(span_y * 0.16, 0.018)
+    min_x, min_y, max_x, max_y = min_x - pad_x, min_y - pad_y, max_x + pad_x, max_y + pad_y
+    span_x = max_x - min_x
+    span_y = max_y - min_y
+    latitude = (min_y + max_y) / 2
+    geographic_aspect = 1 / max(np.cos(np.deg2rad(latitude)), 0.35)
+    target_display_ratio = 8.6 / 5.2
+    current_display_ratio = span_x / (geographic_aspect * span_y)
+    if current_display_ratio < target_display_ratio:
+        required_x = target_display_ratio * geographic_aspect * span_y
+        extra = (required_x - span_x) / 2
+        min_x -= extra
+        max_x += extra
+    else:
+        required_y = span_x / (target_display_ratio * geographic_aspect)
+        extra = (required_y - span_y) / 2
+        min_y -= extra
+        max_y += extra
+    return min_x, min_y, max_x, max_y
+
+
+def add_map_scale_and_north(
+    ax: plt.Axes,
+    bounds: tuple[float, float, float, float],
+    latitude: float,
+) -> None:
+    min_x, min_y, max_x, max_y = bounds
+    span_x = max_x - min_x
+    span_y = max_y - min_y
+    kilometres_per_degree = max(111.32 * np.cos(np.deg2rad(latitude)), 25.0)
+    target_km = span_x * kilometres_per_degree * 0.18
+    choices = np.array([1, 2, 5, 10, 20, 50, 100, 200], dtype=float)
+    valid = choices[choices <= target_km]
+    scale_km = float(valid[-1] if len(valid) else choices[0])
+    scale_degrees = scale_km / kilometres_per_degree
+    x0 = min_x + span_x * 0.055
+    y0 = min_y + span_y * 0.07
+    ax.plot([x0, x0 + scale_degrees], [y0, y0], color="#F4F7F8", linewidth=2.2, zorder=10)
+    ax.plot([x0, x0], [y0 - span_y * 0.008, y0 + span_y * 0.008], color="#F4F7F8", linewidth=1.0, zorder=10)
+    ax.plot(
+        [x0 + scale_degrees, x0 + scale_degrees],
+        [y0 - span_y * 0.008, y0 + span_y * 0.008],
+        color="#F4F7F8",
+        linewidth=1.0,
+        zorder=10,
+    )
+    ax.text(
+        x0 + scale_degrees / 2,
+        y0 + span_y * 0.018,
+        f"{scale_km:g} km",
+        color="#F4F7F8",
+        fontsize=7.0,
+        ha="center",
+        va="bottom",
+        zorder=10,
+    )
+    ax.annotate(
+        "N",
+        xy=(max_x - span_x * 0.06, max_y - span_y * 0.06),
+        xytext=(max_x - span_x * 0.06, max_y - span_y * 0.17),
+        color="#F4F7F8",
+        fontsize=8.0,
+        fontweight="bold",
+        ha="center",
+        va="center",
+        arrowprops={"arrowstyle": "-|>", "color": "#F4F7F8", "linewidth": 1.2},
+        zorder=10,
+    )
+
+
+def make_site_event_assets(
+    world: gpd.GeoDataFrame,
+    event_grid: gpd.GeoDataFrame,
+    candidates: gpd.GeoDataFrame,
+    overview: pd.DataFrame,
+    asset_dir: Path,
+) -> list[Path]:
+    """Render a distinct, data-bearing local map for every event tab."""
+    asset_dir.mkdir(parents=True, exist_ok=True)
+    outputs: list[Path] = []
+    dark_cmap = LinearSegmentedColormap.from_list(
+        "event_damage_dark",
+        ["#203036", "#3A4C53", "#74515A", "#D45C70"],
+    )
+    continent_col = "CONTINENT" if "CONTINENT" in world.columns else None
+    base_world = world[world[continent_col] != "Antarctica"].copy() if continent_col else world.copy()
+
+    for row in overview.itertuples(index=False):
+        frame = event_grid[event_grid["event"] == row.event].copy()
+        if frame.empty:
+            raise RuntimeError(f"No 500 m analysis cells available for {row.event}")
+        bounds = padded_event_bounds(frame)
+        crop = box(*bounds)
+        local_world = base_world[base_world.geometry.intersects(crop)]
+        event_candidates = candidates[candidates["event"] == row.event]
+
+        fig, ax = plt.subplots(figsize=(8.6, 5.2), facecolor="#11181B")
+        ax.set_facecolor("#11181B")
+        if not local_world.empty:
+            local_world.plot(ax=ax, facecolor="#243138", edgecolor="#53636A", linewidth=0.8, zorder=0)
+
+        values = frame["damage_index_D"].fillna(0).astype(float)
+        upper = max(float(values.quantile(0.96)), 0.05)
+        frame.plot(
+            ax=ax,
+            column="damage_index_D",
+            cmap=dark_cmap,
+            norm=Normalize(vmin=0, vmax=upper),
+            edgecolor="#6E8189",
+            linewidth=0.30,
+            alpha=0.96,
+            zorder=3,
+        )
+        if not event_candidates.empty:
+            event_candidates.boundary.plot(ax=ax, color="#F5B942", linewidth=2.0, zorder=7)
+
+        short = EVENT_META[row.event]["short"]
+        ax.scatter(
+            [row.longitude],
+            [row.latitude],
+            marker=EVENT_MARKERS[short],
+            s=92,
+            facecolor=EVENT_COLORS[short],
+            edgecolor="#F4F7F8",
+            linewidth=1.2,
+            zorder=8,
+        )
+        ax.set_xlim(bounds[0], bounds[2])
+        ax.set_ylim(bounds[1], bounds[3])
+        ax.set_aspect(1 / max(np.cos(np.deg2rad(row.latitude)), 0.35), adjustable="box")
+        ax.axis("off")
+        add_map_scale_and_north(ax, bounds, float(row.latitude))
+        fig.subplots_adjust(left=0.012, right=0.988, top=0.988, bottom=0.012)
+        output = asset_dir / f"event_{row.event}.png"
+        fig.savefig(output, dpi=180, facecolor="#11181B", bbox_inches=fig.bbox_inches, pad_inches=0)
+        plt.close(fig)
+        outputs.append(output)
+    return outputs
+
+
 def make_site_scale_assets(
     focus: gpd.GeoDataFrame,
     scale_grids: dict[int, gpd.GeoDataFrame],
@@ -683,6 +847,7 @@ def write_site_data(overview: pd.DataFrame, focus: gpd.GeoDataFrame, site_dir: P
                 "robust_non_temporal": int(row.robust_non_temporal),
                 "temporal_support": int(row.temporal_support),
                 "historical_osm_evidence": str(row.historical_osm_evidence),
+                "map_image": f"assets/event_{row.event}.png",
             }
         )
     payload = {
@@ -763,6 +928,8 @@ def generate_all(output_dir: Path, derived_dir: Path, site_dir: Path) -> dict[st
     overview = load_event_overview(paths)
     focus, scale_grids, buildings, bounds = load_focus_data(paths)
     world = gpd.read_file(paths["world"]).to_crs(4326)
+    event_grid = gpd.read_file(paths["primary_grid"]).to_crs(4326)
+    candidates = gpd.read_file(paths["candidates"]).to_crs(4326)
 
     figure_outputs = make_publication_overview(
         world,
@@ -776,12 +943,14 @@ def generate_all(output_dir: Path, derived_dir: Path, site_dir: Path) -> dict[st
     asset_dir = site_dir / "assets"
     hero_path = asset_dir / "hero_world.png"
     make_site_hero(world, overview, hero_path)
+    event_map_paths = make_site_event_assets(world, event_grid, candidates, overview, asset_dir)
     make_site_scale_assets(focus, scale_grids, buildings, bounds, asset_dir)
     copied_site_assets = copy_site_assets(asset_dir, figure_outputs["png"])
     copied_site_documents = copy_site_documents(site_dir)
     site_data_path = write_site_data(overview, focus, site_dir)
     site_outputs = [
         hero_path,
+        *event_map_paths,
         asset_dir / "scale_mexico_250m.png",
         asset_dir / "scale_mexico_500m.png",
         asset_dir / "scale_mexico_1000m.png",

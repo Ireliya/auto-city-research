@@ -37,6 +37,22 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+html[lang="zh-CN"] body {
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", ui-sans-serif, sans-serif;
+}
+
+html[lang="zh-CN"] .hero h1,
+html[lang="zh-CN"] .section h2,
+html[lang="zh-CN"] blockquote,
+html[lang="zh-CN"] .event-detail h3,
+html[lang="zh-CN"] .metric-inner strong,
+html[lang="zh-CN"] .event-metrics dd,
+html[lang="zh-CN"] .ranking-source strong,
+html[lang="zh-CN"] .gate-strip strong,
+html[lang="zh-CN"] .funnel-row strong {
+  font-family: "Songti SC", STSong, "Noto Serif CJK SC", serif;
+}
+
 body.menu-open {
   overflow: hidden;
 }
@@ -126,6 +142,45 @@ pre {
   display: flex;
   align-items: center;
   gap: 26px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+.language-switch {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 44px);
+  overflow: hidden;
+  border: 1px solid #55646a;
+  border-radius: 4px;
+}
+
+.language-switch button {
+  width: 44px;
+  height: 32px;
+  padding: 0;
+  color: #bfc9cd;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid #55646a;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.language-switch button:last-child {
+  border-right: 0;
+}
+
+.language-switch button:hover,
+.language-switch button:focus-visible,
+.language-switch button[aria-pressed="true"] {
+  color: #11181b;
+  background: #f4f7f8;
 }
 
 .site-navigation a {
@@ -313,6 +368,10 @@ pre {
   gap: 7px;
 }
 
+.hero-legend b {
+  font-weight: 600;
+}
+
 .event-dot {
   width: 9px;
   height: 9px;
@@ -488,6 +547,7 @@ blockquote {
   cursor: pointer;
   font-size: 13px;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .event-tabs button:last-child,
@@ -527,10 +587,17 @@ blockquote {
 
 .atlas-map img {
   width: 100%;
-  flex: 1 1 auto;
+  aspect-ratio: 43 / 26;
+  flex: 0 0 auto;
   min-height: 0;
   object-fit: cover;
   object-position: center;
+  opacity: 1;
+  transition: opacity 140ms ease;
+}
+
+.atlas-map img.is-changing {
+  opacity: 0.28;
 }
 
 .atlas-map figcaption,
@@ -606,6 +673,7 @@ blockquote {
   color: var(--muted);
   font-size: 10px;
   font-weight: 800;
+  overflow-wrap: anywhere;
   text-transform: uppercase;
 }
 
@@ -887,6 +955,7 @@ blockquote {
 .funnel-row span {
   font-size: 13px;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .funnel-row.universe { width: 100%; background: var(--soft); }
@@ -1249,7 +1318,7 @@ footer p {
   }
 
   .atlas-map {
-    min-height: 430px;
+    min-height: 0;
   }
 
   .event-detail {
@@ -1295,6 +1364,20 @@ footer p {
 
   .menu-button {
     display: block;
+  }
+
+  .header-controls {
+    gap: 7px;
+  }
+
+  .language-switch {
+    grid-template-columns: repeat(2, 38px);
+  }
+
+  .language-switch button {
+    width: 38px;
+    height: 30px;
+    font-size: 10px;
   }
 
   .site-navigation {
@@ -1438,7 +1521,7 @@ footer p {
   }
 
   .atlas-map {
-    min-height: 280px;
+    min-height: 0;
   }
 
   .event-detail {

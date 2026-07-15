@@ -7,89 +7,99 @@
     <meta
       name="description"
       content="An auditable urban AI study of where satellite damage rankings disagree with multi-source post-disaster priority scenarios."
+      data-i18n-content="meta.description"
     >
     <meta property="og:title" content="Damage Is Not Need | Auto-City-Research">
     <meta
       property="og:description"
       content="Four disasters, three spatial scales, two population products, and one fixed-gate ranking audit."
+      data-i18n-content="meta.ogDescription"
     >
     <meta property="og:type" content="website">
-    <meta property="og:image" content="assets/hero_world.png">
+    <meta property="og:url" content="https://ireliya.github.io/auto-city-research/">
+    <meta property="og:image" content="https://ireliya.github.io/auto-city-research/assets/hero_world.png">
+    <meta name="twitter:card" content="summary_large_image">
     <title>Damage Is Not Need | Auto-City-Research</title>
     <link rel="icon" href="assets/team_logo.png" type="image/png">
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Skip to research content</a>
+    <a class="skip-link" href="#main-content" data-i18n="skip">Skip to research content</a>
 
     <header class="site-header" data-site-header>
       <div class="nav-inner">
-        <a class="brand" href="#top" aria-label="Auto-City-Research home">
+        <a class="brand" href="#top" aria-label="Auto-City-Research home" data-i18n-aria-label="brand.home">
           <img src="assets/team_logo.png" alt="" width="34" height="34">
           <span>Auto-City-Research</span>
         </a>
-        <button
-          class="menu-button"
-          type="button"
-          aria-label="Open navigation"
-          aria-controls="site-navigation"
-          aria-expanded="false"
-          data-menu-button
-        >
-          <span></span><span></span><span></span>
-        </button>
-        <nav class="site-navigation" id="site-navigation" aria-label="Primary navigation" data-navigation>
-          <a href="#question">Question</a>
-          <a href="#events">Events</a>
-          <a href="#scale">Scale</a>
-          <a href="#audit">Audit</a>
-          <a href="#results">Results</a>
-          <a href="#reproduce">Reproduce</a>
-        </nav>
+        <div class="header-controls">
+          <nav class="site-navigation" id="site-navigation" aria-label="Primary navigation" data-i18n-aria-label="nav.label" data-navigation>
+            <a href="#question" data-i18n="nav.question">Question</a>
+            <a href="#events" data-i18n="nav.events">Events</a>
+            <a href="#scale" data-i18n="nav.scale">Scale</a>
+            <a href="#audit" data-i18n="nav.audit">Audit</a>
+            <a href="#results" data-i18n="nav.results">Results</a>
+            <a href="#reproduce" data-i18n="nav.reproduce">Reproduce</a>
+          </nav>
+          <div class="language-switch" role="group" aria-label="Language" data-i18n-aria-label="language.label">
+            <button type="button" data-language="en" aria-pressed="true">EN</button>
+            <button type="button" data-language="zh" aria-pressed="false">中文</button>
+          </div>
+          <button
+            class="menu-button"
+            type="button"
+            aria-label="Open navigation"
+            data-i18n-aria-label="menu.open"
+            aria-controls="site-navigation"
+            aria-expanded="false"
+            data-menu-button
+          >
+            <span></span><span></span><span></span>
+          </button>
+        </div>
       </div>
     </header>
 
     <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="hero-shade" aria-hidden="true"></div>
       <div class="hero-inner">
-        <p class="eyebrow">Urban Cup 2026 · Competition 2</p>
-        <h1 id="hero-title">Damage Is Not Need</h1>
-        <p class="hero-question">
-          When an urban AI ranks recovery only by satellite-observed building damage,
-          which places disappear from view?
+        <p class="eyebrow" data-i18n="hero.eyebrow">Urban Cup 2026 · Competition 2</p>
+        <h1 id="hero-title" data-i18n="hero.title">Damage Is Not Need</h1>
+        <p class="hero-question" data-i18n="hero.question">
+          When an urban AI ranks recovery only by satellite-observed building damage, which places disappear from view?
         </p>
-        <p class="hero-boundary">
+        <p class="hero-boundary" data-i18n="hero.boundary">
           A reproducible audit of ranking disagreement across four disasters. It does not estimate true unmet need or prescribe dispatch.
         </p>
-        <div class="hero-links" aria-label="Project resources">
+        <div class="hero-links" aria-label="Project resources" data-i18n-aria-label="hero.resources">
           <a href="https://github.com/Ireliya/auto-city-research" rel="noreferrer">
             <img src="assets/github_icon.png" alt="" width="20" height="20">
-            Code <span aria-hidden="true">&#8599;</span>
+            <span data-i18n="resource.code">Code</span> <span aria-hidden="true">&#8599;</span>
           </a>
           <a href="https://huggingface.co/datasets/Ireliya/auto-city-research" rel="noreferrer">
             <img src="assets/huggingface_icon.png" alt="" width="20" height="20">
-            Data <span aria-hidden="true">&#8599;</span>
+            <span data-i18n="resource.data">Data</span> <span aria-hidden="true">&#8599;</span>
           </a>
           <a href="downloads/paper_en.pdf">
-            Paper <span aria-hidden="true">&#8595;</span>
+            <span data-i18n="resource.paper">Paper</span> <span aria-hidden="true">&#8595;</span>
           </a>
         </div>
       </div>
-      <div class="hero-legend" aria-label="Selected study events">
-        <span><i class="event-dot harvey"></i>Harvey</span>
-        <span><i class="event-dot mexico"></i>Mexico</span>
-        <span><i class="event-dot palu"></i>Palu</span>
-        <span><i class="event-dot santa"></i>Santa Rosa</span>
+      <div class="hero-legend" aria-label="Selected study events" data-i18n-aria-label="hero.events">
+        <span><i class="event-dot harvey"></i><b data-event-label="hurricane-harvey">Harvey</b></span>
+        <span><i class="event-dot mexico"></i><b data-event-label="mexico-earthquake">Mexico</b></span>
+        <span><i class="event-dot palu"></i><b data-event-label="palu-tsunami">Palu</b></span>
+        <span><i class="event-dot santa"></i><b data-event-label="santa-rosa-wildfire">Santa Rosa</b></span>
       </div>
     </section>
 
-    <section class="metric-band" aria-label="Study scope">
+    <section class="metric-band" aria-label="Study scope" data-i18n-aria-label="metrics.label">
       <div class="metric-inner">
-        <div><strong data-global="events">4</strong><span>disaster events</span></div>
-        <div><strong data-global="buildings">99,629</strong><span>labeled buildings</span></div>
-        <div><strong data-global="cells">1,448</strong><span>reference cells</span></div>
-        <div><strong><span data-global="robust_non_temporal">4</span> &#8594; <span data-global="temporal_support">0</span></strong><span>robust &#8594; temporal</span></div>
+        <div><strong data-global="events">4</strong><span data-i18n="metrics.events">disaster events</span></div>
+        <div><strong data-global="buildings">99,629</strong><span data-i18n="metrics.buildings">labeled buildings</span></div>
+        <div><strong data-global="cells">1,448</strong><span data-i18n="metrics.cells">reference cells</span></div>
+        <div><strong><span data-global="robust_non_temporal">4</span> &#8594; <span data-global="temporal_support">0</span></strong><span data-i18n="metrics.funnel">robust &#8594; temporal</span></div>
       </div>
     </section>
 
@@ -97,23 +107,21 @@
       <section class="section question-section" id="question">
         <div class="section-inner two-column">
           <div>
-            <p class="section-index">01 · Research question</p>
-            <h2>Visible damage is evidence. It is not the whole decision.</h2>
+            <p class="section-index" data-i18n="question.index">01 · Research question</p>
+            <h2 data-i18n="question.title">Visible damage is evidence. It is not the whole decision.</h2>
           </div>
           <div>
-            <blockquote>
-              If a post-disaster AI uses only remote-sensing damage to rank recovery priority,
-              does it systematically omit places selected when population exposure, road access,
-              critical services, and urban form are also inspected?
+            <blockquote data-i18n="question.quote">
+              If a post-disaster AI uses only remote-sensing damage to rank recovery priority, does it systematically omit places selected when population exposure, road access, critical services, and urban form are also inspected?
             </blockquote>
             <div class="claim-ledger">
               <div>
-                <span>What we observe</span>
-                <strong>Ranking disagreement under transparent scenarios</strong>
+                <span data-i18n="question.observeLabel">What we observe</span>
+                <strong data-i18n="question.observeValue">Ranking disagreement under transparent scenarios</strong>
               </div>
               <div>
-                <span>What we do not observe</span>
-                <strong>True unmet need or a correct rescue allocation</strong>
+                <span data-i18n="question.notObserveLabel">What we do not observe</span>
+                <strong data-i18n="question.notObserveValue">True unmet need or a correct rescue allocation</strong>
               </div>
             </div>
           </div>
@@ -124,31 +132,35 @@
         <div class="section-inner">
           <div class="section-heading">
             <div>
-              <p class="section-index">02 · Event atlas</p>
-              <h2>One audit, four distinct urban contexts</h2>
+              <p class="section-index" data-i18n="events.index">02 · Event atlas</p>
+              <h2 data-i18n="events.title">One audit, four distinct urban contexts</h2>
             </div>
-            <p>Use the event tabs to inspect how provisional disagreement and final evidence changed by place.</p>
+            <p data-i18n="events.intro">Select an event to inspect its own 500 m footprint, damage pattern, and evidence state.</p>
           </div>
 
-          <div class="event-tabs" role="tablist" aria-label="Disaster events" data-event-tabs>
+          <div class="event-tabs" role="tablist" aria-label="Disaster events" data-i18n-aria-label="events.tabsLabel" data-event-tabs>
             <button role="tab" aria-selected="true" data-event-id="hurricane-harvey">
-              <i class="event-dot harvey"></i>Harvey
+              <i class="event-dot harvey"></i><span data-event-tab="hurricane-harvey">Harvey</span>
             </button>
             <button role="tab" aria-selected="false" data-event-id="mexico-earthquake">
-              <i class="event-dot mexico"></i>Mexico
+              <i class="event-dot mexico"></i><span data-event-tab="mexico-earthquake">Mexico</span>
             </button>
             <button role="tab" aria-selected="false" data-event-id="palu-tsunami">
-              <i class="event-dot palu"></i>Palu
+              <i class="event-dot palu"></i><span data-event-tab="palu-tsunami">Palu</span>
             </button>
             <button role="tab" aria-selected="false" data-event-id="santa-rosa-wildfire">
-              <i class="event-dot santa"></i>Santa Rosa
+              <i class="event-dot santa"></i><span data-event-tab="santa-rosa-wildfire">Santa Rosa</span>
             </button>
           </div>
 
           <div class="atlas-layout">
             <figure class="atlas-map">
-              <img src="assets/hero_world.png" alt="World map locating the four selected xBD disaster footprints">
-              <figcaption>Event-footprint centroids; this is a selected four-event study, not global coverage.</figcaption>
+              <img
+                src="assets/event_hurricane-harvey.png"
+                alt="Hurricane Harvey xBD footprint with 500 metre damage cells"
+                data-event-map
+              >
+              <figcaption data-event-map-caption>Hurricane Harvey · independently rebuilt 500 m analysis cells</figcaption>
             </figure>
             <div class="event-detail" role="tabpanel" aria-live="polite">
               <div class="event-title-row">
@@ -160,12 +172,12 @@
               </div>
               <p class="coordinates" data-event="coordinates">29.748° N · 95.580° W</p>
               <dl class="event-metrics">
-                <div><dt>Buildings</dt><dd data-event="buildings">23,014</dd></div>
-                <div><dt>500 m cells</dt><dd data-event="cells">612</dd></div>
-                <div><dt>Percentile diagnostic</dt><dd data-event="percentile">49</dd></div>
-                <div><dt>Exact top-20%</dt><dd data-event="exact">52</dd></div>
-                <div><dt>Cross-definition robust</dt><dd data-event="robust">0</dd></div>
-                <div><dt>Temporal support</dt><dd data-event="temporal">0</dd></div>
+                <div><dt data-i18n="events.buildings">Buildings</dt><dd data-event="buildings">23,014</dd></div>
+                <div><dt data-i18n="events.cells">500 m cells</dt><dd data-event="cells">612</dd></div>
+                <div><dt data-i18n="events.percentile">Percentile diagnostic</dt><dd data-event="percentile">49</dd></div>
+                <div><dt data-i18n="events.exact">Exact top-20%</dt><dd data-event="exact">52</dd></div>
+                <div><dt data-i18n="events.robust">Cross-definition robust</dt><dd data-event="robust">0</dd></div>
+                <div><dt data-i18n="events.temporal">Temporal support</dt><dd data-event="temporal">0</dd></div>
               </dl>
               <div class="event-bar" aria-hidden="true"><span data-event="bar"></span></div>
               <p class="event-note" data-event="note">
@@ -180,18 +192,19 @@
         <div class="section-inner">
           <div class="section-heading compact-heading">
             <div>
-              <p class="section-index">03 · Study overview</p>
-              <h2 id="overview-title">Geography, scale, and evidence in one frame</h2>
+              <p class="section-index" data-i18n="overview.index">03 · Study overview</p>
+              <h2 id="overview-title" data-i18n="overview.title">Geography, scale, and evidence in one frame</h2>
             </div>
-            <p>The same graphical overview appears in the English paper and Chinese competition report.</p>
+            <p data-i18n="overview.intro">The same graphical overview appears in the English paper and Chinese competition report.</p>
           </div>
           <figure class="overview-figure">
             <img
               src="assets/study_overview_global_multiscale.png"
               alt="Study overview showing four disaster locations, the same Mexico area at three grid scales, and the fixed-gate evidence funnel"
+              data-i18n-alt="overview.alt"
               loading="lazy"
             >
-            <figcaption>
+            <figcaption data-i18n="overview.caption">
               Four selected event footprints, independently rebuilt analysis grids, and the fixed audit that reduced diagnostic disagreements to four non-temporal candidates and zero temporally supported candidates.
             </figcaption>
           </figure>
@@ -201,27 +214,25 @@
       <section class="section scale-section" id="scale">
         <div class="section-inner scale-layout">
           <div class="scale-copy">
-            <p class="section-index light">04 · Cross-scale explorer</p>
-            <h2>Same place. Different analytical support.</h2>
+            <p class="section-index light" data-i18n="scale.index">04 · Cross-scale explorer</p>
+            <h2 data-i18n="scale.title">Same place. Different analytical support.</h2>
             <p>
-              These are independently reconstructed grids around the same real Mexico candidate,
-              <code>mexico-earthquake_500m_3_38</code>. Empty mesh cells contain no xBD building labels;
-              shaded cells entered the analysis.
+              <span data-i18n="scale.bodyBefore">These are independently reconstructed grids around the same real Mexico candidate,</span>
+              <code>mexico-earthquake_500m_3_38</code>.
+              <span data-i18n="scale.bodyAfter">Empty mesh cells contain no xBD building labels; shaded cells entered the analysis.</span>
             </p>
-            <div class="segmented-control" role="tablist" aria-label="Spatial resolution" data-scale-tabs>
+            <div class="segmented-control" role="tablist" aria-label="Spatial resolution" data-i18n-aria-label="scale.tabsLabel" data-scale-tabs>
               <button role="tab" aria-selected="true" data-scale="250">250 m</button>
               <button role="tab" aria-selected="false" data-scale="500">500 m</button>
               <button role="tab" aria-selected="false" data-scale="1000">1,000 m</button>
             </div>
             <div class="scale-status" aria-live="polite">
               <span data-scale-status class="not-retained">Not retained</span>
-              <p data-scale-explanation>
-                The candidate area does not meet the common two-population-product support gate at 250 m.
-              </p>
+              <p data-scale-explanation>The candidate area does not meet the common two-population-product support gate at 250 m.</p>
             </div>
-            <div class="map-key" aria-label="Map legend">
-              <span><i class="key-building"></i>xBD building labels</span>
-              <span><i class="key-cell"></i>containing cell</span>
+            <div class="map-key" aria-label="Map legend" data-i18n-aria-label="scale.legendLabel">
+              <span><i class="key-building"></i><b data-i18n="scale.buildingKey">xBD building labels</b></span>
+              <span><i class="key-cell"></i><b data-i18n="scale.cellKey">containing cell</b></span>
             </div>
           </div>
           <figure class="scale-visual">
@@ -239,44 +250,44 @@
         <div class="section-inner">
           <div class="section-heading">
             <div>
-              <p class="section-index">05 · Audit framework</p>
-              <h2>Disagreement must survive fixed evidence gates</h2>
+              <p class="section-index" data-i18n="audit.index">05 · Audit framework</p>
+              <h2 data-i18n="audit.title">Disagreement must survive fixed evidence gates</h2>
             </div>
-            <p>The framework compares rankings; it never converts a scenario score into a ground-truth need label.</p>
+            <p data-i18n="audit.intro">The framework compares rankings; it never converts a scenario score into a ground-truth need label.</p>
           </div>
 
-          <div class="ranking-comparison" aria-label="Compared ranking families">
+          <div class="ranking-comparison" aria-label="Compared ranking families" data-i18n-aria-label="audit.rankingLabel">
             <div class="ranking-source damage-source">
-              <span>Observed physical condition</span>
-              <strong>Damage-only rankings</strong>
-              <small>4 alternative baselines</small>
+              <span data-i18n="audit.damageSpan">Observed physical condition</span>
+              <strong data-i18n="audit.damageStrong">Damage-only rankings</strong>
+              <small data-i18n="audit.damageSmall">4 alternative baselines</small>
             </div>
-            <div class="versus" aria-hidden="true">versus</div>
+            <div class="versus" aria-hidden="true" data-i18n="audit.versus">versus</div>
             <div class="ranking-source source-multi">
-              <span>Transparent policy scenarios</span>
-              <strong>Multi-source priorities</strong>
-              <small>Population · access · services</small>
+              <span data-i18n="audit.multiSpan">Transparent policy scenarios</span>
+              <strong data-i18n="audit.multiStrong">Multi-source priorities</strong>
+              <small data-i18n="audit.multiSmall">Population · access · services</small>
             </div>
           </div>
 
-          <div class="gate-strip" aria-label="Robustness gates">
-            <div><strong>4</strong><span>damage baselines</span></div>
-            <div><strong>20,000</strong><span>weight draws</span></div>
-            <div><strong>2</strong><span>population products</span></div>
-            <div><strong>3</strong><span>rebuilt scales</span></div>
+          <div class="gate-strip" aria-label="Robustness gates" data-i18n-aria-label="audit.gatesLabel">
+            <div><strong>4</strong><span data-i18n="audit.baselines">damage baselines</span></div>
+            <div><strong>20,000</strong><span data-i18n="audit.draws">weight draws</span></div>
+            <div><strong>2</strong><span data-i18n="audit.populations">population products</span></div>
+            <div><strong>3</strong><span data-i18n="audit.scales">rebuilt scales</span></div>
           </div>
 
-          <div class="evidence-funnel" aria-label="Evidence funnel">
-            <div class="funnel-row universe"><strong>1,448</strong><span>audited cells</span></div>
+          <div class="evidence-funnel" aria-label="Evidence funnel" data-i18n-aria-label="audit.funnelLabel">
+            <div class="funnel-row universe"><strong>1,448</strong><span data-i18n="audit.audited">audited cells</span></div>
             <div class="funnel-arrow" aria-hidden="true">&#8595;</div>
-            <div class="funnel-row diagnostic"><strong>73 / 115</strong><span>percentile / exact diagnostics</span></div>
+            <div class="funnel-row diagnostic"><strong>73 / 115</strong><span data-i18n="audit.diagnostics">percentile / exact diagnostics</span></div>
             <div class="funnel-arrow" aria-hidden="true">&#8595;</div>
-            <div class="funnel-row robust"><strong>4</strong><span>cross-definition robust, all Mexico</span></div>
+            <div class="funnel-row robust"><strong>4</strong><span data-i18n="audit.robust">cross-definition robust, all Mexico</span></div>
             <div class="funnel-arrow" aria-hidden="true">&#8595;</div>
-            <div class="funnel-row temporal"><strong>0</strong><span>supported by historical OSM</span></div>
+            <div class="funnel-row temporal"><strong>0</strong><span data-i18n="audit.temporal">supported by historical OSM</span></div>
           </div>
 
-          <p class="proxy-note">
+          <p class="proxy-note" data-i18n="audit.proxy">
             NFIP, SVI, and IHP remain outside this funnel. Their results are reported as mixed, construct-specific external evidence.
           </p>
         </div>
@@ -286,33 +297,33 @@
         <div class="section-inner">
           <div class="section-heading">
             <div>
-              <p class="section-index">06 · Evidence</p>
-              <h2>The strongest result is the narrowing</h2>
+              <p class="section-index" data-i18n="results.index">06 · Evidence</p>
+              <h2 data-i18n="results.title">The strongest result is the narrowing</h2>
             </div>
-            <p>Open a figure for a larger view. Every chart is generated from frozen derived tables.</p>
+            <p data-i18n="results.intro">Open a figure for a larger view. Every chart is generated from frozen derived tables.</p>
           </div>
 
           <div class="figure-gallery">
             <figure class="result-card">
               <div class="figure-image-wrap">
-                <img src="assets/fig9_multiscale_robustness.png" alt="Multiscale robustness results" loading="lazy">
-                <button class="zoom-button" type="button" aria-label="Open multiscale robustness figure" title="Open full figure" data-figure-open>&#8599;</button>
+                <img src="assets/fig9_multiscale_robustness.png" alt="Multiscale robustness results" data-i18n-alt="results.scaleAlt" loading="lazy">
+                <button class="zoom-button" type="button" aria-label="Open multiscale robustness figure" data-i18n-aria-label="results.scaleOpen" title="Open full figure" data-i18n-title="results.openTitle" data-figure-open>&#8599;</button>
               </div>
-              <figcaption><strong>Scale changes counts and area shares.</strong> The analysis is rebuilt at 250, 500, and 1,000 m rather than resampled from one grid.</figcaption>
+              <figcaption><strong data-i18n="results.scaleStrong">Scale changes counts and area shares.</strong> <span data-i18n="results.scaleCaption">The analysis is rebuilt at 250, 500, and 1,000 m rather than resampled from one grid.</span></figcaption>
             </figure>
             <figure class="result-card featured-result">
               <div class="figure-image-wrap">
-                <img src="assets/fig11_consensus_audit.png" alt="Fixed consensus audit results" loading="lazy">
-                <button class="zoom-button" type="button" aria-label="Open fixed consensus audit figure" title="Open full figure" data-figure-open>&#8599;</button>
+                <img src="assets/fig11_consensus_audit.png" alt="Fixed consensus audit results" data-i18n-alt="results.consensusAlt" loading="lazy">
+                <button class="zoom-button" type="button" aria-label="Open fixed consensus audit figure" data-i18n-aria-label="results.consensusOpen" title="Open full figure" data-i18n-title="results.openTitle" data-figure-open>&#8599;</button>
               </div>
-              <figcaption><strong>Only four cells pass every non-temporal gate.</strong> None survives the separate historical OSM support test.</figcaption>
+              <figcaption><strong data-i18n="results.consensusStrong">Only four cells pass every non-temporal gate.</strong> <span data-i18n="results.consensusCaption">None survives the separate historical OSM support test.</span></figcaption>
             </figure>
             <figure class="result-card">
               <div class="figure-image-wrap">
-                <img src="assets/fig12_external_proxy_divergence.png" alt="External proxy divergence results" loading="lazy">
-                <button class="zoom-button" type="button" aria-label="Open external proxy divergence figure" title="Open full figure" data-figure-open>&#8599;</button>
+                <img src="assets/fig12_external_proxy_divergence.png" alt="External proxy divergence results" data-i18n-alt="results.proxyAlt" loading="lazy">
+                <button class="zoom-button" type="button" aria-label="Open external proxy divergence figure" data-i18n-aria-label="results.proxyOpen" title="Open full figure" data-i18n-title="results.openTitle" data-figure-open>&#8599;</button>
               </div>
-              <figcaption><strong>External proxies disagree by construct.</strong> Insured loss, social vulnerability, and household assistance do not define one universal target.</figcaption>
+              <figcaption><strong data-i18n="results.proxyStrong">External proxies disagree by construct.</strong> <span data-i18n="results.proxyCaption">Insured loss, social vulnerability, and household assistance do not define one universal target.</span></figcaption>
             </figure>
           </div>
         </div>
@@ -321,21 +332,21 @@
       <section class="section boundary-section" id="boundary">
         <div class="section-inner two-column boundary-layout">
           <div>
-            <p class="section-index">07 · Validity boundary</p>
-            <h2>A useful audit is honest about what remains unknown.</h2>
+            <p class="section-index" data-i18n="boundary.index">07 · Validity boundary</p>
+            <h2 data-i18n="boundary.title">A useful audit is honest about what remains unknown.</h2>
           </div>
           <div class="boundary-table">
             <div class="boundary-row supports">
-              <span>Supported</span>
-              <p>Damage-only and multi-source rankings can diverge, and the apparent signal is sensitive to policy weights, population resolution, spatial scale, and map time.</p>
+              <span data-i18n="boundary.supported">Supported</span>
+              <p data-i18n="boundary.supportedText">Damage-only and multi-source rankings can diverge, and the apparent signal is sensitive to policy weights, population resolution, spatial scale, and map time.</p>
             </div>
             <div class="boundary-row limits">
-              <span>Not established</span>
-              <p>The analysis does not identify actual unmet need, causal urban-form mechanisms, or an ethically correct rescue and recovery allocation.</p>
+              <span data-i18n="boundary.notEstablished">Not established</span>
+              <p data-i18n="boundary.notEstablishedText">The analysis does not identify actual unmet need, causal urban-form mechanisms, or an ethically correct rescue and recovery allocation.</p>
             </div>
             <div class="boundary-row use">
-              <span>Appropriate use</span>
-              <p>Use robust disagreements as locations for human review and additional local evidence, not as automatic dispatch instructions.</p>
+              <span data-i18n="boundary.use">Appropriate use</span>
+              <p data-i18n="boundary.useText">Use robust disagreements as locations for human review and additional local evidence, not as automatic dispatch instructions.</p>
             </div>
           </div>
         </div>
@@ -344,32 +355,31 @@
       <section class="section reproduce-section" id="reproduce">
         <div class="section-inner reproduce-layout">
           <div>
-            <p class="section-index light">08 · Open reproduction</p>
-            <h2>Trace every number back to data, code, config, and log.</h2>
-            <p>
-              The public repository contains the core analysis, fixed configs, evidence manifests,
-              and one-command reproduction entry point. Raw xBD imagery is not redistributed.
+            <p class="section-index light" data-i18n="reproduce.index">08 · Open reproduction</p>
+            <h2 data-i18n="reproduce.title">Trace every number back to data, code, config, and log.</h2>
+            <p data-i18n="reproduce.body">
+              The public repository contains the core analysis, fixed configs, evidence manifests, and one-command reproduction entry point. Raw xBD imagery is not redistributed.
             </p>
             <div class="resource-list">
               <a href="https://github.com/Ireliya/auto-city-research" rel="noreferrer">
                 <img src="assets/github_icon.png" alt="" width="28" height="28">
-                <span><strong>Source code</strong><small>GitHub repository</small></span>
+                <span><strong data-i18n="reproduce.source">Source code</strong><small data-i18n="reproduce.sourceSub">GitHub repository</small></span>
                 <b aria-hidden="true">&#8599;</b>
               </a>
               <a href="https://huggingface.co/datasets/Ireliya/auto-city-research" rel="noreferrer">
                 <img src="assets/huggingface_icon.png" alt="" width="28" height="28">
-                <span><strong>Derived data</strong><small>Fixed Hugging Face revision</small></span>
+                <span><strong data-i18n="reproduce.data">Derived data</strong><small data-i18n="reproduce.dataSub">Fixed Hugging Face revision</small></span>
                 <b aria-hidden="true">&#8599;</b>
               </a>
               <a href="downloads/competition_report_cn.pdf">
                 <span class="document-icon" aria-hidden="true">PDF</span>
-                <span><strong>Chinese report</strong><small>Competition narrative</small></span>
+                <span><strong data-i18n="reproduce.report">Chinese report</strong><small data-i18n="reproduce.reportSub">Competition narrative</small></span>
                 <b aria-hidden="true">&#8595;</b>
               </a>
             </div>
           </div>
-          <div class="reproduce-terminal" aria-label="Core reproduction commands">
-            <div class="terminal-bar"><span></span><span></span><span></span><b>core reproduction</b></div>
+          <div class="reproduce-terminal" aria-label="Core reproduction commands" data-i18n-aria-label="reproduce.commandsLabel">
+            <div class="terminal-bar"><span></span><span></span><span></span><b data-i18n="reproduce.terminal">core reproduction</b></div>
             <pre><code>git clone https://github.com/Ireliya/auto-city-research.git
 cd auto-city-research
 
@@ -377,7 +387,7 @@ conda env create -f configs/environment_city.yml
 conda activate city
 
 python scripts/reproduce_core.py --profile final</code></pre>
-            <p>Expected fixed totals: <strong>73</strong> percentile, <strong>115</strong> exact top-20%, <strong>4</strong> non-temporal robust, <strong>0</strong> temporal support.</p>
+            <p><span data-i18n="reproduce.expected">Expected fixed totals:</span> <strong>73</strong> <span data-i18n="reproduce.percentile">percentile</span>, <strong>115</strong> <span data-i18n="reproduce.exact">exact top-20%</span>, <strong>4</strong> <span data-i18n="reproduce.nonTemporal">non-temporal robust</span>, <strong>0</strong> <span data-i18n="reproduce.temporal">temporal support</span>.</p>
           </div>
         </div>
       </section>
@@ -387,14 +397,14 @@ python scripts/reproduce_core.py --profile final</code></pre>
       <div class="footer-inner">
         <div class="footer-brand">
           <img src="assets/team_logo.png" alt="" width="32" height="32">
-          <span><strong>Auto-City-Research</strong><small>Urban AI as auditable evidence, not automatic truth.</small></span>
+          <span><strong>Auto-City-Research</strong><small data-i18n="footer.tagline">Urban AI as auditable evidence, not automatic truth.</small></span>
         </div>
-        <p>Countries: Natural Earth, public domain. Building labels: xBD/xView2. See the report for complete attribution and limitations.</p>
+        <p data-i18n="footer.attribution">Countries: Natural Earth, public domain. Building labels: xBD/xView2. See the report for complete attribution and limitations.</p>
       </div>
     </footer>
 
     <dialog class="figure-dialog" data-figure-dialog>
-      <button type="button" class="dialog-close" aria-label="Close figure" title="Close" data-dialog-close>&times;</button>
+      <button type="button" class="dialog-close" aria-label="Close figure" data-i18n-aria-label="dialog.closeFigure" title="Close" data-i18n-title="dialog.close" data-dialog-close>&times;</button>
       <img src="" alt="" data-dialog-image>
       <p data-dialog-caption></p>
     </dialog>

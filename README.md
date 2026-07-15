@@ -31,7 +31,7 @@ We audit four xBD/xView2 event footprints using population exposure, road-access
 
 ## Interactive Study
 
-The [interactive project website](https://ireliya.github.io/auto-city-research/) connects the four event footprints, the same Mexico candidate area at independently rebuilt 250/500/1,000 m grids, the fixed evidence funnel, and the publication figures. The website and reports share the same generated study data and claim boundary.
+The bilingual [interactive project website](https://ireliya.github.io/auto-city-research/) connects four distinct event maps, the same Mexico candidate area at independently rebuilt 250/500/1,000 m grids, the fixed evidence funnel, and the publication figures. The website and reports share the same generated study data and claim boundary.
 
 ![Global and cross-scale study overview](docs/assets/study_overview_global_multiscale.png)
 
