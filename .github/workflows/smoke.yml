@@ -1,20 +1,21 @@
-name: smoke
+name: final-reproduction
 
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: smoke-${{ github.ref }}
+  group: final-reproduction-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  python-smoke:
+  verify-and-recompute:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -31,5 +32,5 @@ jobs:
         run: python scripts/download_data.py
       - name: Verify published headline tables
         run: python scripts/smoke_reproduce.py
-      - name: Recompute offline core evidence
-        run: python scripts/reproduce_core.py --skip-download
+      - name: Recompute final two-resolution evidence
+        run: python scripts/reproduce_core.py --profile final --skip-download
