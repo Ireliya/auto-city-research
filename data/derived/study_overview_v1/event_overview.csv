@@ -1,0 +1,5 @@
+event,cells,longitude,latitude,buildings,percentile_disagreement,exact_top20_disagreement,robust_non_temporal,temporal_support,historical_osm_evidence,name,short_name,hazard
+hurricane-harvey,612,-95.58040056726269,29.748186921352488,23014,49,52,0,0,not_assessable,Hurricane Harvey,Harvey,Flooding
+mexico-earthquake,288,-99.18638450423038,19.312911823968296,32271,0,39,4,0,does_not_support,Mexico earthquake,Mexico EQ,Earthquake
+palu-tsunami,196,119.85961462652995,-0.856410350163017,31394,2,2,0,0,does_not_support,Palu tsunami,Palu,Tsunami
+santa-rosa-wildfire,352,-122.71743048629725,38.49185000184843,12950,22,22,0,0,support,Santa Rosa wildfire,Santa Rosa,Wildfire

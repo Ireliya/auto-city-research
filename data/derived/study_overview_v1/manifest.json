@@ -1,0 +1,138 @@
+{
+  "artifact": "study_overview_global_multiscale",
+  "claim_boundary": "Ranking-disagreement audit; not an estimator of true unmet need.",
+  "focus_cell_id": "mexico-earthquake_500m_3_38",
+  "natural_earth": {
+    "license": "Public domain",
+    "source": "https://www.naturalearthdata.com/"
+  },
+  "outputs": {
+    "data/derived/study_overview_v1/event_overview.csv": {
+      "bytes": 666,
+      "sha256": "55e552878f0b6118aed819e049b1e06f0da219b964f07957523a8fe76a223a46"
+    },
+    "data/derived/study_overview_v1/scale_focus_candidate.csv": {
+      "bytes": 921,
+      "sha256": "019eabf8d706566972f6a672ac467c710eea6fb0988c84a0182926a0d428e6cc"
+    },
+    "docs/assets/fig11_consensus_audit.png": {
+      "bytes": 265378,
+      "sha256": "7bb7dbb5eac27d3a61aafb5b002a1d4ca9018af78971359ad52a08a9302f1a21"
+    },
+    "docs/assets/fig12_external_proxy_divergence.png": {
+      "bytes": 231273,
+      "sha256": "f21d60c4c2e8c854fed62bcaae1b6354e2a0c8a9de14896076ff527c9afde72e"
+    },
+    "docs/assets/fig9_multiscale_robustness.png": {
+      "bytes": 353528,
+      "sha256": "71f36e7c4238d6ba16ec7410bf994764e5bd7bf399634f150438869109d7efbf"
+    },
+    "docs/assets/github_icon.png": {
+      "bytes": 11398,
+      "sha256": "d0159ff4c46ff9dd20bdac10dd8126698a9ee3e04d0723ea3bd6016e4ffa259b"
+    },
+    "docs/assets/hero_world.png": {
+      "bytes": 180594,
+      "sha256": "be6c724b8bad0a5668816c1878768594f9ec69040fa7504ccd12612ea6735b1f"
+    },
+    "docs/assets/huggingface_icon.png": {
+      "bytes": 22440,
+      "sha256": "8cce6b1964e9e918a1b29df15eb156b54c5d3f783f52230a9de5fd67455d009f"
+    },
+    "docs/assets/scale_mexico_1000m.png": {
+      "bytes": 31086,
+      "sha256": "cc582bfd5bc876d8045b29b3e772865230305f2454a614246dd2aad7df5b5abc"
+    },
+    "docs/assets/scale_mexico_250m.png": {
+      "bytes": 44429,
+      "sha256": "9a7a228a81814c094e23fee24894e3726752ed642cb9be17c5d83772c275acbe"
+    },
+    "docs/assets/scale_mexico_500m.png": {
+      "bytes": 36107,
+      "sha256": "27b28de76cfcbc0ffc02f7665a7be74582e3311afdf6420f4ed43daa55e3b491"
+    },
+    "docs/assets/study_overview_global_multiscale.png": {
+      "bytes": 1056624,
+      "sha256": "2226e11b4b4188029f13354ab0d560cf99b340189090117578a0381e570502d6"
+    },
+    "docs/assets/team_logo.png": {
+      "bytes": 58307,
+      "sha256": "8d2013e8f842e7a2f634245153f0dcaf82a841c6220666de603147c352f1a701"
+    },
+    "docs/data/study.json": {
+      "bytes": 2328,
+      "sha256": "e2e2b0628f93d5c9fa1528565206371031d752453858c5224802a9fb9ecd631b"
+    },
+    "docs/downloads/competition_report_cn.pdf": {
+      "bytes": 8303190,
+      "sha256": "4a06fa5819ede6247e372b1fa671db1fa55ae8d33d56435cf370029c1505e9a5"
+    },
+    "docs/downloads/paper_en.pdf": {
+      "bytes": 9854281,
+      "sha256": "6bcb711a2bbabbdfbf56ff29062f8b07ba8b6fc2a8cd8bc4880841a450a1e18d"
+    },
+    "reports/figures/study_overview_global_multiscale.pdf": {
+      "bytes": 255764,
+      "sha256": "f8056f01a77a5fd95c71bf04dd382432fcad452b940d2111d3402d865ce336a9"
+    },
+    "reports/figures/study_overview_global_multiscale.png": {
+      "bytes": 1056624,
+      "sha256": "2226e11b4b4188029f13354ab0d560cf99b340189090117578a0381e570502d6"
+    },
+    "reports/figures/study_overview_global_multiscale.svg": {
+      "bytes": 753305,
+      "sha256": "88d8a97b957c2bfd87299d444cffb524d4367b2645d7c20151f8e0f08654f1a0"
+    },
+    "reports/figures/study_overview_global_multiscale_grayscale.png": {
+      "bytes": 940376,
+      "sha256": "170ed232222831e09b56bae74e2b7a66eb17af9a97912afb0947ef231f956e95"
+    }
+  },
+  "scope": "Four selected xBD event footprints; not global coverage.",
+  "sources": {
+    "buildings": {
+      "path": "data/derived/xbd_core_v1/xbd_buildings.csv",
+      "sha256": "245df71211142794e731c144f73b80f4cdac5a7a34b808fb2609c7b24e030e30"
+    },
+    "candidates": {
+      "path": "data/derived/final_consensus_v1/final_consensus_candidates.geojson",
+      "sha256": "9d91e1a21656c07097bbf4341c2104d803c2328679681b8fd572b610cb832218"
+    },
+    "final_summary": {
+      "path": "data/derived/final_consensus_v1/final_consensus_event_summary.csv",
+      "sha256": "e0d5330fa7b1633d6510ba372b7f40a8179bd1b2f54259d515bc25046b82af66"
+    },
+    "historical_osm": {
+      "path": "data/derived/historical_osm_v1/historical_osm_event_summary.csv",
+      "sha256": "1e1634b708c90fa9e6016d0d133ff6a51646fe573369d4f0360f795ad45508da"
+    },
+    "primary_grid": {
+      "path": "data/derived/multiscale_100m_v1/worldpop_500m/damage_osm_worldpop_grid_500m.geojson",
+      "sha256": "1ca379b6cfd595df8a00925beea4776a7868481541173fa71725dea08c469f1d"
+    },
+    "primary_summary": {
+      "path": "data/derived/priority_mismatch_100m_v1/event_mismatch_summary.csv",
+      "sha256": "0fa57361270c9109ed4c351c6f509eebe824be11d7c81255985a91986ed969fa"
+    },
+    "scale_1000": {
+      "path": "data/derived/multiscale_100m_v1/worldpop_1000m/damage_osm_worldpop_grid_1000m.geojson",
+      "sha256": "8013b3dff20eea944d27b259d3e5adbf483fb5579cf31059c119ffc6565276c9"
+    },
+    "scale_250": {
+      "path": "data/derived/multiscale_100m_v1/worldpop_250m/damage_osm_worldpop_grid_250m.geojson",
+      "sha256": "415f832ad530cda05d891dcd39e458532cc84d2730b562d16eaa95d2fc898095"
+    },
+    "scale_500": {
+      "path": "data/derived/multiscale_100m_v1/worldpop_500m/damage_osm_worldpop_grid_500m.geojson",
+      "sha256": "1ca379b6cfd595df8a00925beea4776a7868481541173fa71725dea08c469f1d"
+    },
+    "strict_summary": {
+      "path": "data/derived/strict_budget_100m_v1/strict_budget_event_summary.csv",
+      "sha256": "877d88da84bcdf43f7c3da3e4327a6ad0be032f2a0765b32ba844407a1bed227"
+    },
+    "world": {
+      "path": "data/derived/study_overview_v1/ne_110m_admin_0_countries.geojson",
+      "sha256": "6866c877d39cba9c357620878839b336d569f8c662d3cfab4cb1dbe2d39c977f"
+    }
+  }
+}

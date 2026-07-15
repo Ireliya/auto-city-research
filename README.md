@@ -11,7 +11,10 @@
   <strong><a href="https://github.com/Ireliya/auto-city-research">github.com/Ireliya/auto-city-research</a></strong><br>
   <img src="huggingface_icon.png" alt="Hugging Face" width="18" align="absmiddle">
   <strong>Data:</strong>
-  <strong><a href="https://huggingface.co/datasets/Ireliya/auto-city-research">huggingface.co/datasets/Ireliya/auto-city-research</a></strong>
+  <strong><a href="https://huggingface.co/datasets/Ireliya/auto-city-research">huggingface.co/datasets/Ireliya/auto-city-research</a></strong><br>
+  <img src="logo.png" alt="Project website" width="18" align="absmiddle">
+  <strong>Project:</strong>
+  <strong><a href="https://ireliya.github.io/auto-city-research/">ireliya.github.io/auto-city-research</a></strong>
 </p>
 
 **Damage Is Not Need: Auditing Post-Disaster Priority Disagreement with Multi-Source Urban Evidence**
@@ -25,6 +28,12 @@ Satellite damage assessment can rapidly locate physically affected buildings. Th
 > If post-disaster places are ranked only by satellite-observed building damage, where does that ranking disagree with transparent multi-source priority scenarios, and which disagreements remain stable across alternative data and analytical choices?
 
 We audit four xBD/xView2 event footprints using population exposure, road-access constraints, critical-service context, and descriptive urban form. The output is an auditable disagreement set for human review. It is not a ground-truth unmet-need model and not an operational dispatch system.
+
+## Interactive Study
+
+The [interactive project website](https://ireliya.github.io/auto-city-research/) connects the four event footprints, the same Mexico candidate area at independently rebuilt 250/500/1,000 m grids, the fixed evidence funnel, and the publication figures. The website and reports share the same generated study data and claim boundary.
+
+![Global and cross-scale study overview](docs/assets/study_overview_global_multiscale.png)
 
 ## Frozen Results
 
@@ -77,11 +86,20 @@ configs/       Fixed events, evidence gates, weights, and public revisions
 scripts/       Download, manifest verification, smoke test, and final orchestrator
 src/           Analysis, robustness, temporal audit, proxy tests, and figure code
 reports/       English paper, Chinese report, figures, and rendered PDFs
+docs/          Standalone interactive website published with GitHub Pages
 records/       Final evidence freeze and claim-to-evidence ledgers
 data/          Source ledger and download notes; derived data arrives from Hugging Face
 ```
 
 The deterministic public route uses prepared, privacy-safe derived inputs. Network-dependent source acquisition remains separately callable through the relevant source scripts and is not treated as deterministic CI.
+
+Website interactions, local assets, horizontal overflow, and desktop/mobile layouts can be checked with:
+
+```bash
+npm ci
+npx playwright install chromium
+npm run test:website
+```
 
 ## Data And Privacy
 
@@ -91,6 +109,7 @@ See [DATASET.md](DATASET.md) and [reports/data_access_license_notes.md](reports/
 
 ## Reports
 
+- [Interactive project website](https://ireliya.github.io/auto-city-research/)
 - [English research paper](reports/pdf/paper_en.pdf)
 - [Chinese competition report](reports/pdf/competition_report_cn.pdf)
 - [Data and reproducible-code guide](reports/pdf/data_description_reproducibility.pdf)

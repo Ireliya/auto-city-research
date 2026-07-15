@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate Figures 1-12 from fixed derived tables without rerunning experiments."""
+"""Regenerate Figures 1-12 and the study overview from fixed derived tables."""
 
 from __future__ import annotations
 
@@ -55,6 +55,7 @@ def main() -> None:
     multiscale = load_script("19_run_multiscale_robustness.py", "project_figures_19")
     nfip = load_script("20_validate_harvey_nfip.py", "project_figures_20")
     final_evidence = load_script("25_make_final_evidence_figures.py", "project_figures_25")
+    study_overview = load_script("27_make_study_overview.py", "project_figures_27")
 
     figures.setup_style()
     figures.figure_event_summary(
@@ -117,6 +118,11 @@ def main() -> None:
         pd.read_csv(PROJECT_ROOT / "data/derived/harvey_external_validation_v1/harvey_external_validation_metrics.csv"),
         args.figure_dir,
     )
+    study_overview.generate_all(
+        args.figure_dir,
+        PROJECT_ROOT / "data" / "derived" / "study_overview_v1",
+        PROJECT_ROOT / "docs",
+    )
 
     expected = []
     for index in range(1, 13):
@@ -124,6 +130,10 @@ def main() -> None:
         if len(matches) != 1:
             raise RuntimeError(f"Expected one editable SVG for Figure {index}, found {len(matches)}")
         expected.append(matches[0])
+    overview_svg = args.figure_dir / "study_overview_global_multiscale.svg"
+    if not overview_svg.exists():
+        raise RuntimeError(f"Missing editable study overview: {overview_svg}")
+    expected.append(overview_svg)
     print(f"publication_figures={len(expected)}")
     print(f"figure_dir={args.figure_dir}")
 

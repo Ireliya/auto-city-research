@@ -6,9 +6,13 @@ Code: [github.com/Ireliya/auto-city-research](https://github.com/Ireliya/auto-ci
 
 Reproducibility data: [huggingface.co/datasets/Ireliya/auto-city-research](https://huggingface.co/datasets/Ireliya/auto-city-research)
 
+Project: [ireliya.github.io/auto-city-research](https://ireliya.github.io/auto-city-research/)
+
 ## Abstract
 
 Satellite damage assessment can rapidly map physically affected buildings, but a damage map is not a complete recovery-priority map. We tested where damage-only rankings disagree with transparent multi-source priority scenarios that also represent population exposure, road-access constraints, and critical-service context. The analysis joined 99,629 xBD/xView2 building labels with WorldPop and OpenStreetMap evidence across 1,448 500 m cells in four disasters. With quality-controlled 100 m WorldPop data as the primary population surface, a percentile rule identified 73 scenario-consensus disagreement cells; an exact top-20% budget identified 115. These totals were diagnostic rather than final findings. We then imposed fixed gates across four damage baselines, 10,000 policy-plausible weight samples, both 100 m and 1 km population products, and independently rebuilt 250, 500, and 1,000 m grids. Only four Mexico-earthquake cells passed every gate. All four were supported by all damage baselines in both population products, had policy-weight disagreement probabilities of 0.812--0.959, and persisted at 500 and 1,000 m. Historical OpenStreetMap did not support their temporal persistence. External tests also diverged by construct: CDC social vulnerability showed no decisive alignment, FEMA household-assistance indicators slightly favored a balanced multi-source scenario but had wide intervals over 14 ZIP codes, and 10,134 Harvey-period flood-insurance claims over 149 tracts favored damage-only rankings on rank correlation. We therefore do not claim to estimate true unmet need. The contribution is a reproducible disagreement audit that separates physical damage observation, normative priority scenarios, temporal data sensitivity, and construct-specific external evidence before human review.
+
+![Study overview. The audit spans four selected xBD disaster footprints, rebuilds the same Mexico candidate area at 250 m, 500 m, and 1,000 m, and applies fixed evidence gates that narrow 1,448 cells to four non-temporal candidates and zero historically supported candidates. Countries: Natural Earth, public domain.](figures/study_overview_global_multiscale.png)
 
 ## 1. Introduction
 

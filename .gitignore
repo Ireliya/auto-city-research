@@ -6,3 +6,5 @@ __pycache__/
 data/derived/
 data/reproduced/
 reports/reproduced_figures/
+.qa/
+node_modules/

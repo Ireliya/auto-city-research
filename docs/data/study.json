@@ -1,0 +1,85 @@
+{
+  "claim_boundary": "This audit compares rankings. It does not estimate true unmet need or prescribe dispatch.",
+  "events": [
+    {
+      "buildings": 23014,
+      "cells": 612,
+      "exact_top20_disagreement": 52,
+      "hazard": "Flooding",
+      "historical_osm_evidence": "not_assessable",
+      "id": "hurricane-harvey",
+      "latitude": 29.748187,
+      "longitude": -95.580401,
+      "name": "Hurricane Harvey",
+      "percentile_disagreement": 49,
+      "robust_non_temporal": 0,
+      "short_name": "Harvey",
+      "temporal_support": 0
+    },
+    {
+      "buildings": 32271,
+      "cells": 288,
+      "exact_top20_disagreement": 39,
+      "hazard": "Earthquake",
+      "historical_osm_evidence": "does_not_support",
+      "id": "mexico-earthquake",
+      "latitude": 19.312912,
+      "longitude": -99.186385,
+      "name": "Mexico earthquake",
+      "percentile_disagreement": 0,
+      "robust_non_temporal": 4,
+      "short_name": "Mexico EQ",
+      "temporal_support": 0
+    },
+    {
+      "buildings": 31394,
+      "cells": 196,
+      "exact_top20_disagreement": 2,
+      "hazard": "Tsunami",
+      "historical_osm_evidence": "does_not_support",
+      "id": "palu-tsunami",
+      "latitude": -0.85641,
+      "longitude": 119.859615,
+      "name": "Palu tsunami",
+      "percentile_disagreement": 2,
+      "robust_non_temporal": 0,
+      "short_name": "Palu",
+      "temporal_support": 0
+    },
+    {
+      "buildings": 12950,
+      "cells": 352,
+      "exact_top20_disagreement": 22,
+      "hazard": "Wildfire",
+      "historical_osm_evidence": "support",
+      "id": "santa-rosa-wildfire",
+      "latitude": 38.49185,
+      "longitude": -122.71743,
+      "name": "Santa Rosa wildfire",
+      "percentile_disagreement": 22,
+      "robust_non_temporal": 0,
+      "short_name": "Santa Rosa",
+      "temporal_support": 0
+    }
+  ],
+  "focus_candidate": {
+    "cell_id": "mexico-earthquake_500m_3_38",
+    "event": "mexico-earthquake",
+    "policy_probability_100m": 0.8117,
+    "policy_probability_1km": 0.8623,
+    "scale_support": {
+      "1000": true,
+      "250": false,
+      "500": true
+    }
+  },
+  "study": {
+    "buildings": 99629,
+    "cells": 1448,
+    "events": 4,
+    "exact_top20_disagreements": 115,
+    "percentile_disagreements": 73,
+    "robust_non_temporal": 4,
+    "temporal_support": 0
+  }
+}

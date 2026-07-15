@@ -1,0 +1,12 @@
+{
+  "name": "auto-city-research-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser QA for the Damage Is Not Need static research website",
+  "scripts": {
+    "test:website": "node scripts/verify_website.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.61.1"
+  }
+}
