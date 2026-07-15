@@ -27,5 +27,7 @@ dependencies:
   - pyyaml
   - pyarrow
   - fastparquet
+  - pillow
+  - huggingface_hub
   - jupyterlab
   - ipykernel
