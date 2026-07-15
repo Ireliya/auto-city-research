@@ -88,10 +88,10 @@ python scripts/smoke_reproduce.py
 To regenerate the ten publication figures from the fixed derived tables:
 
 ```bash
-python src/21_regenerate_publication_figures.py
+python src/21_regenerate_publication_figures.py --no-basemap
 ```
 
-Each figure is exported as editable SVG, vector PDF, 600 dpi PNG, and a grayscale-check PNG.
+Each figure is exported as editable SVG, vector PDF, 600 dpi PNG, and a grayscale-check PNG. Omit `--no-basemap` to add the attributed CARTO/OpenStreetMap background to Figure 4 when tile access is available.
 
 ## Repository Structure
 
