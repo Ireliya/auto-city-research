@@ -1,16 +1,12 @@
 #!/usr/bin/env python3
-"""Create map-based case figures for damage-vs-need priority mismatch.
-
-This script intentionally uses only pandas and matplotlib. The priority
-mismatch table already stores each 500 m grid cell in event-local UTM
-coordinates, so rectangular grid maps can be reproduced without a GIS stack.
-"""
+"""Create OSM-context case figures for damage-vs-need priority mismatch."""
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
+import contextily as cx
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
@@ -47,6 +43,16 @@ def parse_args() -> argparse.Namespace:
         default="fig4_case_map_mismatch",
         help="Output basename without extension.",
     )
+    parser.add_argument(
+        "--tile-cache-dir",
+        default="data/cache/contextily",
+        help="Cache directory for OpenStreetMap basemap tiles.",
+    )
+    parser.add_argument(
+        "--no-basemap",
+        action="store_true",
+        help="Render the analytical grid without network basemap tiles.",
+    )
     return parser.parse_args()
 
 
@@ -78,9 +84,9 @@ def add_grid_layer(
 ) -> PatchCollection:
     patches = [
         Rectangle(
-            (row.x_min / 1000.0, row.y_min / 1000.0),
-            (row.x_max - row.x_min) / 1000.0,
-            (row.y_max - row.y_min) / 1000.0,
+            (row.x_min, row.y_min),
+            row.x_max - row.x_min,
+            row.y_max - row.y_min,
         )
         for row in df.itertuples(index=False)
     ]
@@ -89,7 +95,8 @@ def add_grid_layer(
         cmap=cmap,
         norm=norm,
         linewidths=0.08,
-        edgecolors="#eaeaea",
+        edgecolors="#f4f4f4",
+        alpha=0.72,
     )
     collection.set_array(df[value_col].to_numpy())
     ax.add_collection(collection)
@@ -99,10 +106,10 @@ def add_grid_layer(
 def add_mismatch_outlines(ax: plt.Axes, df: pd.DataFrame) -> None:
     mismatch = df[df["stable_mismatch"].astype(bool)]
     for row in mismatch.itertuples(index=False):
-        x = row.x_min / 1000.0
-        y = row.y_min / 1000.0
-        w = (row.x_max - row.x_min) / 1000.0
-        h = (row.y_max - row.y_min) / 1000.0
+        x = row.x_min
+        y = row.y_min
+        w = row.x_max - row.x_min
+        h = row.y_max - row.y_min
         ax.add_patch(
             Rectangle(
                 (x, y),
@@ -133,9 +140,10 @@ def add_scale_bar(ax: plt.Axes, length_km: float = 5.0) -> None:
     y0, y1 = ax.get_ylim()
     x = x0 + 0.06 * (x1 - x0)
     y = y0 + 0.06 * (y1 - y0)
-    ax.plot([x, x + length_km], [y, y], color="black", lw=1.5, solid_capstyle="butt")
+    length_m = length_km * 1000.0
+    ax.plot([x, x + length_m], [y, y], color="black", lw=1.5, solid_capstyle="butt")
     ax.text(
-        x + length_km / 2,
+        x + length_m / 2,
         y + 0.015 * (y1 - y0),
         f"{length_km:g} km",
         ha="center",
@@ -146,10 +154,10 @@ def add_scale_bar(ax: plt.Axes, length_km: float = 5.0) -> None:
 
 
 def format_map_axis(ax: plt.Axes, df: pd.DataFrame) -> None:
-    pad_x = max(0.5, (df.x_max.max() - df.x_min.min()) / 1000.0 * 0.03)
-    pad_y = max(0.5, (df.y_max.max() - df.y_min.min()) / 1000.0 * 0.03)
-    ax.set_xlim(df.x_min.min() / 1000.0 - pad_x, df.x_max.max() / 1000.0 + pad_x)
-    ax.set_ylim(df.y_min.min() / 1000.0 - pad_y, df.y_max.max() / 1000.0 + pad_y)
+    pad_x = max(500.0, (df.x_max.max() - df.x_min.min()) * 0.03)
+    pad_y = max(500.0, (df.y_max.max() - df.y_min.min()) * 0.03)
+    ax.set_xlim(df.x_min.min() - pad_x, df.x_max.max() + pad_x)
+    ax.set_ylim(df.y_min.min() - pad_y, df.y_max.max() + pad_y)
     ax.set_aspect("equal")
     ax.set_xticks([])
     ax.set_yticks([])
@@ -181,8 +189,25 @@ def crop_to_mismatch_window(df: pd.DataFrame, buffer_m: float = 3000.0) -> pd.Da
     return window if not window.empty else df.copy()
 
 
-def make_figure(df: pd.DataFrame, out_dir: Path, basename: str) -> dict[str, Path]:
+def add_osm_basemap(ax: plt.Axes, epsg: int) -> None:
+    cx.add_basemap(
+        ax,
+        source="https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+        crs=f"EPSG:{epsg}",
+        attribution=False,
+        reset_extent=False,
+    )
+
+
+def make_figure(
+    df: pd.DataFrame,
+    out_dir: Path,
+    basename: str,
+    tile_cache_dir: Path,
+    use_basemap: bool,
+) -> dict[str, Path]:
     set_style()
+    cx.set_cache_dir(tile_cache_dir)
     df = df.copy()
     df["mean_need_score"] = df[NEED_SCORE_COLS].mean(axis=1)
 
@@ -211,11 +236,13 @@ def make_figure(df: pd.DataFrame, out_dir: Path, basename: str) -> dict[str, Pat
             ]
         ):
             ax = axes[row_idx, col_idx]
+            format_map_axis(ax, plot_df)
+            if use_basemap:
+                add_osm_basemap(ax, int(plot_df["utm_epsg"].iloc[0]))
             collection = add_grid_layer(ax, plot_df, value_col, cmap, norm)
             if first_collection is None:
                 first_collection = collection
             add_mismatch_outlines(ax, plot_df)
-            format_map_axis(ax, plot_df)
             mismatch_n = int(plot_df["stable_mismatch"].astype(bool).sum())
             ax.set_title(
                 f"{panel_letters[panel_idx]}. {EVENT_LABELS[event]} | {col_title}",
@@ -252,6 +279,24 @@ def make_figure(df: pd.DataFrame, out_dir: Path, basename: str) -> dict[str, Pat
         aspect=45,
     )
     cbar.set_label("Event-normalized score (0-1)")
+    if use_basemap:
+        axes[0, 1].text(
+            0.99,
+            0.01,
+            "Basemap: (c) OpenStreetMap contributors, (c) CARTO",
+            transform=axes[0, 1].transAxes,
+            ha="right",
+            va="bottom",
+            fontsize=5.5,
+            color="#333333",
+            bbox={
+                "facecolor": "white",
+                "edgecolor": "none",
+                "alpha": 0.72,
+                "pad": 1.2,
+            },
+            zorder=20,
+        )
 
     out_dir.mkdir(parents=True, exist_ok=True)
     outputs = {
@@ -295,7 +340,13 @@ def main() -> None:
     ]
     if missing_cols:
         raise ValueError(f"Missing required columns: {missing_cols}")
-    outputs = make_figure(df, out_dir, args.basename)
+    outputs = make_figure(
+        df,
+        out_dir,
+        args.basename,
+        tile_cache_dir=Path(args.tile_cache_dir),
+        use_basemap=not args.no_basemap,
+    )
     print("Created case map figure:")
     for label, path in outputs.items():
         print(f"- {label}: {path}")

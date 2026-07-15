@@ -72,6 +72,7 @@ def download_file(url: str, out_path: Path) -> dict:
 
 def clip_event_raster(src_path: Path, event_grid: gpd.GeoDataFrame, clip_path: Path) -> dict:
     clip_path.parent.mkdir(parents=True, exist_ok=True)
+    event_union = unary_union(list(event_grid.geometry))
     with rasterio.open(src_path) as src:
         grid_for_raster = event_grid.to_crs(src.crs)
         event_union = unary_union(list(grid_for_raster.geometry))
@@ -151,11 +152,11 @@ def write_manifest(out_dir: Path, args: argparse.Namespace, logs: list[dict]) ->
         "events": EVENT_WORLDPOP,
         "mode": args.mode,
         "worldpop_resolution": args.worldpop_resolution,
-        "population_definition": "stats-api mode uses WorldPop wpgppop total_population. raster-download mode uses WorldPop STAC GeoTIFFs; 100m is summed to grid cells, while 1km_ua is treated as population per 1km cell and converted to 500m exposure by density.",
+        "population_definition": "stats-api mode uses WorldPop wpgppop total_population. Raster-download mode sums 100m cells or treats 1km_ua values as density allocated to the configured metric grid.",
         "outputs": [
-            "worldpop_grid_features_500m.csv",
-            "damage_osm_worldpop_grid_500m.csv",
-            "damage_osm_worldpop_grid_500m.geojson",
+            f"worldpop_grid_features_{args.cell_m}m.csv",
+            f"damage_osm_worldpop_grid_{args.cell_m}m.csv",
+            f"damage_osm_worldpop_grid_{args.cell_m}m.geojson",
             "worldpop_fetch_log.csv",
         ],
         "known_limitations": [

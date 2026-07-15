@@ -1,14 +1,16 @@
 # Data Access and License Notes
 
-Version ID: `20260711-0553-data-license-access-v1`
+Team: **auto city research**
 
-Purpose: document dataset access, attribution, redistribution boundaries, and current-submission limitations for the Urban Cup 2026 Competition 2 package.
+Code: [github.com/Ireliya/auto-city-research](https://github.com/Ireliya/auto-city-research)
+
+Reproducibility data: [huggingface.co/datasets/Ireliya/auto-city-research](https://huggingface.co/datasets/Ireliya/auto-city-research)
 
 This file is not legal advice. It is a reproducibility and submission-hygiene note that explains how the package uses public and competition data without redistributing large raw imagery or raw rasters.
 
 ## Summary
 
-The submission package includes reproducible code, derived CSV/GeoJSON tables, figures, logs, and evidence records. It intentionally does not include raw xBD satellite imagery, raw WorldPop rasters, raw OSM extracts/caches, or raw GHSL rasters. Reviewers can audit the workflow from the included derived products and scripts, while raw-source access remains governed by each source provider's terms.
+The submission package includes reproducible code, derived CSV/GeoJSON tables, figures, logs, and evidence records. It intentionally does not include raw xBD satellite imagery, raw WorldPop rasters, raw OSM extracts/caches, raw GHSL rasters, or individual NFIP claim rows. Reviewers can audit the workflow from the included privacy-safe derived products and scripts, while raw-source access remains governed by each source provider's terms.
 
 ## Dataset Ledger
 
@@ -18,6 +20,9 @@ The submission package includes reproducible code, derived CSV/GeoJSON tables, f
 | WorldPop | Population exposure proxy | WorldPop website and catalog access endpoints | WorldPop datasets are treated as attribution-required open population data; the implemented workflow uses 1 km event-year rasters as an exposure proxy | Derived population columns joined to 500 m grid | Raw raster files are not redistributed |
 | OpenStreetMap roads and amenities | Road accessibility and critical-facility context | OpenStreetMap data via OSMnx/Overpass-compatible retrieval | OSM data are open data under the Open Database License; package includes attribution and derived tables | Derived road/facility metrics and selected derived geospatial outputs | Raw OSM caches and full extracts are not redistributed |
 | OpenStreetMap buildings | Independent building-form robustness | OpenStreetMap building footprints via OSMnx/Overpass-compatible retrieval | Same OSM attribution and ODbL boundary as roads/amenities | Derived OSM building-form tables and figures | Raw OSM building cache is not redistributed |
+| CARTO/OSM basemap | Geographic context for Figure 4 | CARTO raster basemap using OpenStreetMap data | Figure carries attribution to both OpenStreetMap contributors and CARTO | Rendered Figure 4 only | Raster tile cache is not redistributed |
+| OpenFEMA NFIP Claims v2 | Harvey insured-property external boundary test | FEMA OpenFEMA data page and API | Public redacted claims data; project applies additional aggregation and data minimization | Tract aggregates, metrics, bootstrap summaries, and code | Individual claims and the all-Texas runtime aggregate cache are not published |
+| Census TIGER/Line 2017 tracts | NFIP/xBD tract association | US Census Bureau 2017 TIGER/Line tract source | US federal geographic data with source attribution | Derived tract-level result table only | Runtime source polygons are not repackaged |
 | GHSL | Optional built-up robustness route | European Commission / JRC GHSL download pages | GHSL is open/free with attribution; reuse requires source acknowledgement | Script and failed-source record only | No GHSL raster or result is claimed in the current submission |
 | VIIRS | Optional economic-activity extension | EOG / VIIRS product pages | Not used in current results | Not included | Future extension only |
 
@@ -53,6 +58,12 @@ Attribution path:
 - Data description: `reports/data_description_reproducibility.md`
 - Derived data: `data/derived/osm_context_v1/` and `data/derived/osm_building_form_v1/`
 
+Figure 4 uses a CARTO-hosted basemap built from OpenStreetMap data. The rendered figure visibly states `(c) OpenStreetMap contributors, (c) CARTO`; no tile cache is included in the public dataset or submission package.
+
+### OpenFEMA NFIP and Census Tracts
+
+The external validation downloads redacted NFIP claim records in memory for Texas during the Harvey analysis period, immediately aggregates them by the provided Census tract identifier, and writes only tract-level sums. The public release contains only the 149 aggregate tracts that intersect the xBD Harvey footprint, plus model metrics and bootstrap summaries. Individual claim rows are never written by the script. The 2017 tract geometry is attributed to the US Census Bureau; an ArcGIS mirror is used as a network fallback and its provenance is recorded in the run manifest.
+
 ### GHSL
 
 GHSL is not part of the current result claims. A script is included as an optional robustness path, and the recorded attempt explains that official JRC/SEDAC source downloads were unavailable during the project run. Because no GHSL raster was successfully joined, no GHSL-derived table or figure is claimed.
@@ -83,6 +94,9 @@ Not included:
 - OSMnx cache files
 - Raw OSM extracts
 - GHSL rasters
+- Individual NFIP claim rows
+- The all-Texas NFIP tract checkpoint under `data/cache/`
+- CARTO/OSM raster tile caches
 - Remote server paths, IP addresses, passwords, or other credentials
 
 ## Reviewer Reproduction Path
@@ -98,13 +112,15 @@ Reviewers can audit the current result without raw imagery by following:
 7. `data/derived/`
 8. `records/evidence_index.csv`
 
-Full raw-source reproduction requires access to the original xBD archive and public data endpoints. The package documents the expected paths and fetch scripts, but does not embed large source data.
+The public core can be reproduced with `python scripts/reproduce_core.py`, which downloads a fixed Hugging Face revision, verifies hashes, reruns the core analysis, and checks the `67/109` invariants. Full raw-source reproduction additionally requires access to the original xBD archive and public geospatial endpoints; the package documents those routes without embedding large source data.
 
 ## Known Limitations
 
 - OSM roads, amenities, and building footprints are current snapshots and may contain edits after the disaster dates.
 - WorldPop exposure is used at 1 km resolution and cannot resolve all within-cell variation in 500 m analysis cells.
 - GHSL is scripted but not claimed because source downloads were unavailable during the recorded attempt.
+- NFIP is an insured-property loss proxy with coverage and reporting selection; it is not unmet-need ground truth.
+- Figure 4 depends on an online CARTO/OSM tile endpoint when regenerated, but the rendered attributed figure is included.
 - The package is a research audit artifact, not an operational emergency management data release.
 
 ## Verification

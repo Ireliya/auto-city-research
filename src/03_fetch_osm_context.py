@@ -57,9 +57,15 @@ def estimate_utm_epsg(lon: float, lat: float) -> int:
     return (32600 if lat >= 0 else 32700) + zone
 
 
-def set_osmnx_settings(out_dir: Path, date_mode: str, event: str, timeout: int) -> str:
+def set_osmnx_settings(
+    out_dir: Path,
+    date_mode: str,
+    event: str,
+    timeout: int,
+    cache_dir: Path | None = None,
+) -> str:
     ox.settings.use_cache = True
-    ox.settings.cache_folder = str(out_dir / "osmnx_cache")
+    ox.settings.cache_folder = str(cache_dir or (out_dir / "osmnx_cache"))
     ox.settings.requests_timeout = timeout
     ox.settings.overpass_rate_limit = True
     ox.settings.log_console = False
@@ -234,7 +240,13 @@ def process_event(
     event_center_lon = float(event_grid["cell_center_lon"].mean())
     event_center_lat = float(event_grid["cell_center_lat"].mean())
     utm_epsg = estimate_utm_epsg(event_center_lon, event_center_lat)
-    event_date = set_osmnx_settings(out_dir, args.date_mode, event, args.timeout)
+    event_date = set_osmnx_settings(
+        out_dir,
+        args.date_mode,
+        event,
+        args.timeout,
+        args.cache_dir,
+    )
     polygon = buffered_event_polygon(footprint_row, args.buffer_deg)
 
     metrics = empty_event_metrics(event_grid, event)
@@ -309,11 +321,12 @@ def write_manifest(out_dir: Path, args: argparse.Namespace, fetch_logs: list[dic
         "date_mode": args.date_mode,
         "network_type": args.network_type,
         "cell_m": args.cell_m,
+        "cache_dir": str(args.cache_dir or (out_dir / "osmnx_cache")),
         "facility_tags": FACILITY_TAGS,
         "outputs": [
-            "osm_grid_features_500m.csv",
-            "damage_osm_grid_500m.csv",
-            "damage_osm_grid_500m.geojson",
+            f"osm_grid_features_{args.cell_m}m.csv",
+            f"damage_osm_grid_{args.cell_m}m.csv",
+            f"damage_osm_grid_{args.cell_m}m.geojson",
             "osm_facilities.geojson",
             "osm_fetch_log.csv",
         ],
@@ -338,6 +351,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--buffer-deg", type=float, default=0.01)
     parser.add_argument("--timeout", type=int, default=300)
     parser.add_argument("--cell-m", type=int, default=500)
+    parser.add_argument(
+        "--cache-dir",
+        type=Path,
+        help="Optional shared OSMnx cache. Useful when recomputing the same source data on multiple grids.",
+    )
     return parser.parse_args()
 
 

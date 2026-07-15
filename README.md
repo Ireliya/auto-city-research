@@ -40,8 +40,12 @@ The main result is a disagreement map between:
   - Palu tsunami: 3
   - Santa Rosa wildfire: 18
 - 813,352 current OSM building polygons joined as an independent urban-form robustness layer.
+- Four alternative damage-only baselines preserve mismatch in every event at an exact top-20 budget. Harvey ranges from 27 to 51 mismatch cells and Santa Rosa from 18 to 41.
+- Across 10,000 policy-plausible weight vectors, the median exact top-20 mismatch count is 49 for Harvey and 21 for Santa Rosa.
+- Rebuilding the complete audit at 250 m, 500 m, and 1,000 m preserves the Harvey signal; its mismatch-area share is 9.22%, 8.33%, and 8.57%, respectively. Santa Rosa remains 8.09%, 5.11%, and 4.96%.
+- Harvey external validation covers 149 intersecting Census tracts and 10,134 aggregated NFIP claims. The result is mixed: need-aware rankings do not consistently outperform damage-only rankings against insured property losses.
 
-Interpretation: building damage is important, but it is not the same thing as recovery need. A disaster AI should expose where damage-only and need-aware rankings disagree, rather than treating visible building damage as the final priority list.
+Interpretation: building damage is important, but it is not the same thing as recovery need. A disaster AI should expose where damage-only and need-aware rankings disagree, rather than treating visible building damage as the final priority list. NFIP is an insured-property-loss proxy, not ground truth for unmet rescue or recovery need, so the released disagreement map is an audit trigger for human review rather than a validated allocation rule.
 
 ## Quick Reproduction
 
@@ -53,27 +57,21 @@ conda env create -f environment.yml
 conda activate city
 
 python -m pip install -r requirements.txt
+python scripts/reproduce_core.py
+```
+
+The command downloads a pinned Hugging Face snapshot, verifies its SHA-256 manifest, runs the headline smoke checks, and recomputes the offline core tables and figures. It does not require raw satellite imagery or GPU.
+
+## Recreate Main Tables And Figures
+
+For a fast result-only check after downloading the pinned snapshot:
+
+```bash
 python scripts/download_data.py
 python scripts/smoke_reproduce.py
 ```
 
-The smoke test verifies the headline counts from the downloadable derived data. It does not require raw satellite imagery or GPU.
-
-## Recreate Main Tables And Figures
-
-After downloading the Hugging Face data snapshot:
-
-```bash
-python src/05_analyze_priority_mismatch.py
-python src/06_profile_mismatch_drivers.py
-python src/07_make_result_figures.py
-python src/08_make_case_maps.py
-python src/11_run_robustness_checks.py
-python src/15_run_strict_budget_check.py
-python src/17_fetch_osm_building_form.py
-```
-
-Scripts `03`, `04`, `16`, and `17` can call public web services or download public data and may take longer or fail if upstream services are unavailable. For offline review, use the derived data snapshot on Hugging Face and run the smoke test first.
+`scripts/reproduce_core.py` runs scripts `05`, `06`, `07`, `11`, `15`, `18`, and `19` with every required argument supplied. Script `19` uses the released prepared 250/500/1000 m grids so the scale analysis itself is offline and deterministic. Scripts `03`, `04`, `16`, `17`, and `20` depend on public web services or omitted source data and are excluded from per-commit CI; their released aggregate outputs remain downloadable.
 
 ## Repository Structure
 
@@ -93,6 +91,8 @@ The GitHub repository intentionally does not store raw xBD satellite images. Use
 ```bash
 python scripts/download_data.py --repo-id Ireliya/auto-city-research
 ```
+
+The default dataset revision is pinned in `configs/public_release.yaml` so a future update to the dataset cannot silently change a reproduction run.
 
 For data source and redistribution boundaries, see:
 

@@ -1,0 +1,35 @@
+name: smoke
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install offline reproduction dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pandas geopandas numpy scipy scikit-learn matplotlib seaborn pillow pyyaml huggingface_hub
+      - name: Compile source scripts
+        run: python -m py_compile src/*.py scripts/*.py
+      - name: Download pinned data snapshot
+        run: python scripts/download_data.py
+      - name: Verify published headline tables
+        run: python scripts/smoke_reproduce.py
+      - name: Recompute offline core evidence
+        run: python scripts/reproduce_core.py --skip-download

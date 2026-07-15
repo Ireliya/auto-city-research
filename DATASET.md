@@ -17,13 +17,16 @@ The Hugging Face dataset is intended to contain lightweight reproducibility arti
 - `data/derived/robustness_v1/`: threshold and scenario-consensus robustness checks
 - `data/derived/strict_budget_v1/`: exact top-k budget robustness checks
 - `data/derived/osm_building_form_v1/`: independent OSM building-form robustness checks
+- `data/derived/evidence_hardening_v1/`: four damage baselines and 20,000 weight draws
+- `data/derived/multiscale_v1/`: released 250/500/1000 m prepared grids and scale results
+- `data/derived/harvey_external_validation_v1/`: privacy-safe tract aggregates, metrics, and bootstrap summaries
 - `reports/figures/`: publication figures
 - `reports/pdf/`: PDF exports of paper/report/data notes
 - `records/evidence_index.csv`: claim-to-evidence ledger
 
 ## What Is Not Redistributed
 
-The repository does not redistribute raw xBD satellite imagery or raw source rasters. Users who want to rebuild from the raw source layer must obtain the source datasets under their own permitted access and licensing terms.
+The repository does not redistribute raw xBD satellite imagery, raw source rasters, map-tile caches, or individual NFIP claim rows. Users who want to rebuild from the raw source layer must obtain the source datasets under their own permitted access and licensing terms.
 
 ## Download
 
@@ -39,4 +42,4 @@ The script downloads the Hugging Face dataset snapshot into the local project tr
 
 Code is released under the MIT License. Reports and project documentation are released under CC BY 4.0 unless a file states otherwise.
 
-The downloadable data artifacts combine derived information from xBD/xView2, WorldPop, OpenStreetMap, and other public/open data sources. Their use remains subject to the upstream data terms. For source-specific notes, see `reports/data_access_license_notes.md`.
+The downloadable data artifacts combine derived information from xBD/xView2, WorldPop, OpenStreetMap, OpenFEMA NFIP Claims v2, and US Census tract boundaries. Their use remains subject to the upstream data terms. For source-specific notes, see `reports/data_access_license_notes.md`.

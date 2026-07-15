@@ -1,0 +1,52 @@
+version: "1.0"
+created_at: "2026-07-15"
+status: "active_stage2"
+
+random_seed: 20260715
+top_shares:
+  - 0.10
+  - 0.15
+  - 0.20
+  - 0.25
+  - 0.30
+
+damage_baselines:
+  damage_index_D:
+    label: "Area-weighted mean severity"
+  damage_weighted_area_m2:
+    label: "Damage-weighted building area"
+  damaged_building_count:
+    label: "Damaged building count"
+  severe_building_count:
+    label: "Severe building count"
+
+weight_uncertainty:
+  samples_per_regime: 10000
+  regimes:
+    unconstrained:
+      distribution: "Dirichlet(1,1,1,1)"
+    policy_plausible:
+      distribution: "Dirichlet(1,1,1,1) with rejection constraints"
+      damage_weight_min: 0.20
+      damage_weight_max: 0.50
+      other_weight_min: 0.05
+  probability_thresholds:
+    - 0.50
+    - 0.80
+
+multiscale:
+  cell_sizes_m:
+    - 250
+    - 500
+    - 1000
+  primary_top_share: 0.20
+
+external_validation:
+  event: "hurricane-harvey"
+  state: "TX"
+  loss_date_start: "2017-08-23"
+  loss_date_end: "2017-09-15"
+  bootstrap_replicates: 1000
+  top_share: 0.20
+  outcome_proxy_note: "NFIP insured-loss claims are an external outcome proxy, not ground-truth unmet recovery need."
+
