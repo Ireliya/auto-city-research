@@ -64,8 +64,4 @@ conda env create -f environment.yml
 conda activate city
 ```
 
-The main workflow does not require GPU. Optional VLM experiments, if added later, must explicitly use:
-
-```bash
-CUDA_VISIBLE_DEVICES=0
-```
+The published workflow is CPU-only and does not require GPU.

@@ -100,17 +100,9 @@ For data source and redistribution boundaries, see:
 - `reports/data_access_license_notes.md`
 - Hugging Face dataset card: https://huggingface.co/datasets/Ireliya/auto-city-research
 
-## GPU Policy
+## Compute Profile
 
 The main geospatial/statistical workflow is CPU-first. No GPU is required for the published mainline results.
-
-If optional VLM experiments are added later, they must use:
-
-```bash
-CUDA_VISIBLE_DEVICES=0
-```
-
-Multi-GPU training is out of scope for this competition submission.
 
 ## Citation
 

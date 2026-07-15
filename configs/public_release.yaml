@@ -1,6 +1,6 @@
 version: "1.0"
 github_repository: "Ireliya/auto-city-research"
 huggingface_dataset: "Ireliya/auto-city-research"
-huggingface_revision: "0676af721642e47495744f744a1947c211494161"
+huggingface_revision: "85dd1a10c5b8835e5d48375f350c30fddb7f1da4"
 release_tag: "v1.0.0"
 note: "Pinned Urban Cup 2026 Stage 2 evidence and reproducibility release."
