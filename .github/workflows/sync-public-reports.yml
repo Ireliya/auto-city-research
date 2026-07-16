@@ -1,0 +1,151 @@
+name: Sync public report release
+
+on:
+  push:
+    paths:
+      - ".github/workflows/sync-public-reports.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download the pinned report release
+        env:
+          HF_REVISION: 17f2fd96df09e2c37656aea691280f9dec9d3f6a
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from urllib.parse import quote
+          from urllib.request import Request, urlopen
+          import os
+
+          revision = os.environ["HF_REVISION"]
+          base = f"https://huggingface.co/datasets/Ireliya/auto-city-research/resolve/{revision}"
+          mappings = [
+              ("report_icon.png", "report_icon.png"),
+              ("report_icon.svg", "report_icon.svg"),
+              ("report_icon.png", "docs/assets/report_icon.png"),
+              ("report_icon.svg", "docs/assets/report_icon.svg"),
+              ("report_icon.png", "reports/assets/report_icon.png"),
+              ("report_icon.svg", "reports/assets/report_icon.svg"),
+              ("reports/paper_draft_en.md", "reports/paper_draft_en.md"),
+              ("reports/competition_report_cn.md", "reports/competition_report_cn.md"),
+              ("reports/data_description_reproducibility.md", "reports/data_description_reproducibility.md"),
+              ("reports/data_access_license_notes.md", "reports/data_access_license_notes.md"),
+              ("reports/ai_collaboration_summary_cn.md", "reports/ai_collaboration_summary_cn.md"),
+              ("reports/presentation_script_cn.md", "reports/presentation_script_cn.md"),
+              ("reports/pdf/paper_en.pdf", "reports/pdf/paper_en.pdf"),
+              ("reports/pdf/paper_draft_en.pdf", "reports/pdf/paper_draft_en.pdf"),
+              ("reports/pdf/competition_report_cn.pdf", "reports/pdf/competition_report_cn.pdf"),
+              ("reports/pdf/data_description_reproducibility.pdf", "reports/pdf/data_description_reproducibility.pdf"),
+              ("reports/pdf/data_access_license_notes.pdf", "reports/pdf/data_access_license_notes.pdf"),
+              ("reports/pdf/ai_collaboration_summary_cn.pdf", "reports/pdf/ai_collaboration_summary_cn.pdf"),
+              ("reports/pdf/presentation_script_cn.pdf", "reports/pdf/presentation_script_cn.pdf"),
+              ("reports/pdf/paper_en.pdf", "docs/downloads/paper_en.pdf"),
+              ("reports/pdf/competition_report_cn.pdf", "docs/downloads/competition_report_cn.pdf"),
+              ("records/materials_registry.csv", "records/materials_registry.csv"),
+          ]
+          for source, destination in mappings:
+              url = f"{base}/{quote(source, safe='/')}?download=true"
+              request = Request(url, headers={"User-Agent": "Auto-City-Research-release-sync"})
+              with urlopen(request, timeout=120) as response:
+                  data = response.read()
+              path = Path(destination)
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_bytes(data)
+              print(f"{source} -> {destination} ({len(data)} bytes)")
+
+          html_path = Path("docs/index.html")
+          html = html_path.read_text(encoding="utf-8")
+          paper_old = """          <a href="downloads/paper_en.pdf">
+            <span data-i18n="resource.paper">Paper</span> <span aria-hidden="true">&#8595;</span>"""
+          paper_new = """          <a href="downloads/paper_en.pdf">
+            <img src="assets/report_icon.png" alt="" width="20" height="20">
+            <span data-i18n="resource.paper">Paper</span> <span aria-hidden="true">&#8595;</span>"""
+          report_old = """              <a href="downloads/competition_report_cn.pdf">
+                <span class="document-icon" aria-hidden="true">PDF</span>"""
+          report_new = """              <a href="downloads/competition_report_cn.pdf">
+                <img src="assets/report_icon.png" alt="" width="28" height="28">"""
+          if paper_new not in html:
+              if paper_old not in html:
+                  raise RuntimeError("Paper resource markup did not match the expected source")
+              html = html.replace(paper_old, paper_new, 1)
+          if report_new not in html:
+              if report_old not in html:
+                  raise RuntimeError("Report resource markup did not match the expected source")
+              html = html.replace(report_old, report_new, 1)
+          html_path.write_text(html, encoding="utf-8")
+
+          readme_path = Path("README.md")
+          readme = readme_path.read_text(encoding="utf-8")
+          readme = readme.replace(
+              '<img src="logo.png" alt="Project website"',
+              '<img src="report_icon.png" alt="Project website"',
+              1,
+          )
+          readme_path.write_text(readme, encoding="utf-8")
+
+          config_path = Path("configs/public_release.yaml")
+          config = config_path.read_text(encoding="utf-8")
+          config = config.replace('version: "1.5"', 'version: "1.6"', 1)
+          config = config.replace(
+              'huggingface_revision: "57819b1f099071450d606e242dcfc0e24b9f8dac"',
+              f'huggingface_revision: "{revision}"',
+              1,
+          )
+          config = config.replace(
+              'note: "Pinned bilingual atlas evidence and refreshed reports; scientific tables and final two-resolution reproduction are unchanged."',
+              'note: "Pinned report-icon release with clickable project links; scientific tables and final two-resolution reproduction are unchanged."',
+              1,
+          )
+          config_path.write_text(config, encoding="utf-8")
+          PY
+
+      - name: Verify downloaded assets and links
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          png = Path("report_icon.png").read_bytes()
+          if not png.startswith(b"\x89PNG\r\n\x1a\n"):
+              raise SystemExit("report_icon.png is not a PNG")
+          for path in [
+              "reports/pdf/paper_en.pdf",
+              "reports/pdf/competition_report_cn.pdf",
+              "docs/downloads/paper_en.pdf",
+              "docs/downloads/competition_report_cn.pdf",
+          ]:
+              data = Path(path).read_bytes()
+              if not data.startswith(b"%PDF"):
+                  raise SystemExit(f"{path} is not a PDF")
+              if b"https://ireliya.github.io/auto-city-research/" not in data:
+                  raise SystemExit(f"{path} does not contain the project URL")
+          html = Path("docs/index.html").read_text(encoding="utf-8")
+          if html.count('assets/report_icon.png') < 2:
+              raise SystemExit("website report icon references are incomplete")
+          config = Path("configs/public_release.yaml").read_text(encoding="utf-8")
+          if "17f2fd96df09e2c37656aea691280f9dec9d3f6a" not in config:
+              raise SystemExit("public release config does not pin the new revision")
+          print("public report release verification passed")
+          PY
+
+      - name: Commit synchronized report release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md configs/public_release.yaml docs records/materials_registry.csv report_icon.png report_icon.svg reports
+          if git diff --cached --quiet; then
+            echo "No report release changes to commit."
+            exit 0
+          fi
+          git commit -m "Add report icon and refreshed public reports"
+          git push origin HEAD:main
