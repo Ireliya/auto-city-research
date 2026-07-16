@@ -50,6 +50,6 @@ Resolve three reviewer-facing defects without changing any scientific result:
 - `reports/pdf/paper_en.pdf`
 - `reports/pdf/competition_report_cn.pdf`
 
-## Remaining External Gate
+## External Gate Status
 
-The website source and automated verification are ready for publication. The GitHub Pages repository setting and the official competition upload remain owner-authorized external actions until their public responses are verified.
+GitHub Pages was activated by the repository owner. Deployment job `87522688191` completed successfully, and `https://ireliya.github.io/auto-city-research/` returned HTTP 200. A fresh public Playwright run passed English and Chinese interaction checks on desktop and mobile, while all four event maps returned HTTP 200 with distinct hashes. The official competition upload and receipt remain the only owner-authorized external actions.
