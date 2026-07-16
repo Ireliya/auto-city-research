@@ -23,6 +23,7 @@ final-ai-record,ai_collaboration_summary_cn.pdf,report_pdf,<PROJECT_ROOT>/report
 final-logo,team_logo.png,brand_asset,<PROJECT_ROOT>/reports/assets/team_logo.png,team_identity,available,Transparent RGBA PNG
 final-github-icon,github_icon.png,brand_asset,<PROJECT_ROOT>/reports/assets/github_icon.png,code_link_identity,available,Transparent RGBA PNG
 final-hf-icon,huggingface_icon.png,brand_asset,<PROJECT_ROOT>/reports/assets/huggingface_icon.png,data_link_identity,available,Transparent RGBA PNG
+final-report-icon,report_icon.png,brand_asset,<PROJECT_ROOT>/reports/assets/report_icon.png,project_link_identity,available,Transparent RGBA PNG rendered from the supplied SVG
 final-evidence-index,evidence_index.csv,ledger,<PROJECT_ROOT>/records/evidence_index.csv,claim_traceability,available,Every active claim points to an existing script and result
 final-evidence-freeze,final_evidence_freeze_20260715-1612.md,record,<PROJECT_ROOT>/records/final_evidence_freeze_20260715-1612.md,scientific_freeze,available,Canonical final numerical and claim boundary record
 final-research-log,research_log.md,log,<PROJECT_ROOT>/logs/research_log.md,process_record,available,Human-readable decisions outcomes failures and corrections
@@ -30,7 +31,7 @@ final-ai-log,ai_collaboration_log.md,log,<PROJECT_ROOT>/logs/ai_collaboration_lo
 final-command-log,command_log.md,log,<PROJECT_ROOT>/logs/command_log.md,execution_record,available,Commands locations environment and compute-use record
 final-public-release-audit,public_release_audit_20260715-1710.md,record,<PROJECT_ROOT>/records/public_release_audit_20260715-1710.md,release_and_clean_clone_verification,available,Records GitHub commit CI release data revision manifest and clean-clone result
 final-named-package-audit,final_named_package_audit_20260715-1730.md,record,<PROJECT_ROOT>/records/final_named_package_audit_20260715-1730.md,submission_audit,available,Exact official-name package archive and manifest verification
-final-interactive-website,Auto-City-Research interactive website,public_website,https://ireliya.github.io/auto-city-research/,reviewer_visual_navigation,source_verified,World map event atlas scale explorer evidence funnel report downloads and reproduction links
+final-interactive-website,Auto-City-Research interactive website,public_website,https://ireliya.github.io/auto-city-research/,reviewer_visual_navigation,publicly_verified,World map event atlas scale explorer evidence funnel report downloads and reproduction links
 final-study-overview,study_overview_global_multiscale.svg,publication_figure,<PROJECT_ROOT>/reports/figures/study_overview_global_multiscale.svg,global_and_cross_scale_overview,available,Exact event geography same-candidate scale reconstruction and fixed evidence funnel
 final-website-release-record,interactive_website_release_20260715-2026.md,record,<PROJECT_ROOT>/records/interactive_website_release_20260715-2026.md,website_design_and_qa,available,Visual contract local and hosted QA public commit and evidence boundary
 final-bilingual-event-atlas,bilingual_event_atlas_20260715-2104.md,record,<PROJECT_ROOT>/records/bilingual_event_atlas_20260715-2104.md,bilingual_interaction_and_pdf_qa,available,Four distinct event maps full language state text containment and cross-renderer PDF verification

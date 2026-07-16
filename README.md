@@ -12,7 +12,7 @@
   <img src="huggingface_icon.png" alt="Hugging Face" width="18" align="absmiddle">
   <strong>Data:</strong>
   <strong><a href="https://huggingface.co/datasets/Ireliya/auto-city-research">huggingface.co/datasets/Ireliya/auto-city-research</a></strong><br>
-  <img src="logo.png" alt="Project website" width="18" align="absmiddle">
+  <img src="report_icon.png" alt="Project website" width="18" align="absmiddle">
   <strong>Project:</strong>
   <strong><a href="https://ireliya.github.io/auto-city-research/">ireliya.github.io/auto-city-research</a></strong>
 </p>
