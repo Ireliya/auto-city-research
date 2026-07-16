@@ -66,23 +66,19 @@ jobs:
 
           html_path = Path("docs/index.html")
           html = html_path.read_text(encoding="utf-8")
-          paper_old = """          <a href="downloads/paper_en.pdf">
-            <span data-i18n="resource.paper">Paper</span> <span aria-hidden="true">&#8595;</span>"""
-          paper_new = """          <a href="downloads/paper_en.pdf">
-            <img src="assets/report_icon.png" alt="" width="20" height="20">
-            <span data-i18n="resource.paper">Paper</span> <span aria-hidden="true">&#8595;</span>"""
-          report_old = """              <a href="downloads/competition_report_cn.pdf">
-                <span class="document-icon" aria-hidden="true">PDF</span>"""
-          report_new = """              <a href="downloads/competition_report_cn.pdf">
-                <img src="assets/report_icon.png" alt="" width="28" height="28">"""
-          if paper_new not in html:
-              if paper_old not in html:
-                  raise RuntimeError("Paper resource markup did not match the expected source")
-              html = html.replace(paper_old, paper_new, 1)
-          if report_new not in html:
-              if report_old not in html:
-                  raise RuntimeError("Report resource markup did not match the expected source")
-              html = html.replace(report_old, report_new, 1)
+          paper_marker = '<span data-i18n="resource.paper">Paper</span> <span aria-hidden="true">&#8595;</span>'
+          paper_icon = '<img src="assets/report_icon.png" alt="" width="20" height="20">'
+          if paper_icon not in html:
+              if html.count(paper_marker) != 1:
+                  raise RuntimeError("Paper resource marker is missing or ambiguous")
+              html = html.replace(paper_marker, f"{paper_icon}\n            {paper_marker}", 1)
+
+          report_marker = '<span class="document-icon" aria-hidden="true">PDF</span>'
+          report_icon = '<img src="assets/report_icon.png" alt="" width="28" height="28">'
+          if report_icon not in html:
+              if html.count(report_marker) != 1:
+                  raise RuntimeError("Report resource marker is missing or ambiguous")
+              html = html.replace(report_marker, report_icon, 1)
           html_path.write_text(html, encoding="utf-8")
 
           readme_path = Path("README.md")
